@@ -25,12 +25,20 @@ func main() {
 		[]string{diff, diff, breakingChanges, breakingChanges},
 		[]string{http.MethodPost, http.MethodOptions, http.MethodPost, http.MethodOptions},
 		[]func(http.ResponseWriter, *http.Request){
-			internal.Diff, access([]string{http.MethodPost}),
-			internal.BreakingChanges, access([]string{http.MethodPost})},
+			access(internal.Diff), options([]string{http.MethodPost}),
+			access(internal.BreakingChanges), options([]string{http.MethodPost})},
 	)
 }
 
-func access(methods []string) func(http.ResponseWriter, *http.Request) {
+func access(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next(w, r)
+	}
+}
+
+func options(methods []string) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
