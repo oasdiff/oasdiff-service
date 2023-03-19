@@ -103,7 +103,7 @@ func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 		}
 	} else if contentType == "application/x-www-form-urlencoded" {
 		if err := r.ParseForm(); err != nil {
-			log.Errorf("failed to parse form request with '%v'", err)
+			log.Infof("failed to parse 'application/x-www-form-urlencoded' request with '%v'", err)
 			return "", nil, nil, http.StatusBadRequest
 		}
 		if code := copyFormData(r, "base", base); code != http.StatusOK {
