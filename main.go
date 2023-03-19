@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/writer"
-	"github.com/tufin/oasdiff-service/internal"
 )
 
 func main() {

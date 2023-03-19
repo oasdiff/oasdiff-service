@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff-service/internal"
 	"github.com/tufin/oasdiff/checker"
 	"gopkg.in/yaml.v3"
 )

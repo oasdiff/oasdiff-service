@@ -1,4 +1,4 @@
-module github.com/tufin/oasdiff-service
+module github.com/oasdiff/oasdiff-service
 
 go 1.20
 

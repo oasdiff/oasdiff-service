@@ -4,27 +4,66 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/diff"
 )
 
-func CreateConfig() *diff.Config {
+func CreateConfig(r *http.Request) *diff.Config {
 
 	config := diff.NewConfig()
-	config.ExcludeExamples = false
-	config.ExcludeDescription = false
-	config.PathFilter = ""
-	config.FilterExtension = ""
-	config.PathPrefixBase = ""
-	config.PathPrefixRevision = ""
-	config.PathStripPrefixBase = ""
-	config.PathStripPrefixRevision = ""
-	config.BreakingOnly = false
-	config.DeprecationDays = 0
+	config.ExcludeExamples = getBoolQueryString(r, "exclude-examples", config.ExcludeExamples)
+	config.ExcludeDescription = getBoolQueryString(r, "exclude-description", config.ExcludeDescription)
+	config.PathFilter = getQueryString(r, "path-filter", config.PathFilter)
+	config.FilterExtension = getQueryString(r, "filter-extension", config.FilterExtension)
+	config.PathPrefixBase = getQueryString(r, "path-prefix-base", config.PathPrefixBase)
+	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
+	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
+	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
+	config.BreakingOnly = false // breaking-only is deprecated
+	config.DeprecationDays = getIntQueryString(r, "deprecation-days", config.DeprecationDays)
+	config.ExcludeEndpoints = getBoolQueryString(r, "exclude-endpoints", config.ExcludeEndpoints)
+	// config.IncludeExtensions = StringSet{}
 
 	return config
+}
+
+func getQueryString(r *http.Request, key string, defaultValue string) string {
+
+	if val, ok := r.URL.Query()[key]; ok {
+		return val[0]
+	}
+
+	return defaultValue
+}
+
+func getIntQueryString(r *http.Request, key string, defaultValue int) int {
+
+	if val, ok := r.URL.Query()[key]; ok {
+		if res, err := strconv.Atoi(val[0]); err == nil && res >= 0 {
+			return res
+		}
+		log.Infof("invalid query string '%s: %s' (using default '%d')", key, val[0], defaultValue)
+	}
+
+	return defaultValue
+}
+
+func getBoolQueryString(r *http.Request, key string, defaultValue bool) bool {
+
+	if val, ok := r.URL.Query()[key]; ok {
+		if val[0] == "true" {
+			return true
+		}
+		if val[0] == "false" {
+			return false
+		}
+		log.Infof("invalid query string '%s: %s' (using default '%v')", key, val[0], defaultValue)
+	}
+
+	return defaultValue
 }
 
 func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
