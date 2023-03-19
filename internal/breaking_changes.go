@@ -38,7 +38,7 @@ func BreakingChanges(w http.ResponseWriter, r *http.Request) {
 
 func calcBreakingChanges(r *http.Request, base string, revision string) ([]checker.BackwardCompatibilityError, int) {
 
-	config := CreateConfig()
+	config := CreateConfig(r)
 
 	// breaking changes
 	config.IncludeExtensions.Add(checker.XStabilityLevelExtension)

@@ -22,7 +22,7 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	diffReport, code := createDiffReport(base, revision)
+	diffReport, code := createDiffReport(r, base, revision)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
@@ -36,7 +36,7 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createDiffReport(base *os.File, revision *os.File) (*diff.Diff, int) {
+func createDiffReport(r *http.Request, base *os.File, revision *os.File) (*diff.Diff, int) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = false
@@ -50,7 +50,7 @@ func createDiffReport(base *os.File, revision *os.File) (*diff.Diff, int) {
 		log.Infof("failed to load revision spec from %q with %v", revision.Name(), err)
 		return nil, http.StatusBadRequest
 	}
-	config := CreateConfig()
+	config := CreateConfig(r)
 
 	diffReport, err := diff.Get(config, s1, s2)
 	if err != nil {
