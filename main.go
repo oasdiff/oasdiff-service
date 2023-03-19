@@ -19,11 +19,26 @@ import (
 )
 
 func main() {
+
+	const diff, breakingChanges = "/diff", "/breaking-changes"
 	serve(
-		[]string{"/diff", "/breaking-changes"},
-		[]string{http.MethodPost, http.MethodPost},
-		[]func(http.ResponseWriter, *http.Request){internal.Diff, internal.BreakingChanges},
+		[]string{diff, diff, breakingChanges, breakingChanges},
+		[]string{http.MethodPost, http.MethodOptions, http.MethodPost, http.MethodOptions},
+		[]func(http.ResponseWriter, *http.Request){
+			internal.Diff, access([]string{http.MethodPost}),
+			internal.BreakingChanges, access([]string{http.MethodPost})},
 	)
+}
+
+func access(methods []string) func(http.ResponseWriter, *http.Request) {
+
+	return func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type,Content-Length,Server,Date,access-control-allow-methods,access-control-allow-origin")
+		w.Header().Set("Access-Control-Max-Age", "3600")
+		w.WriteHeader(http.StatusNoContent)
+	}
 }
 
 func serve(path []string, method []string,
