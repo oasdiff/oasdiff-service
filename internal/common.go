@@ -14,17 +14,17 @@ import (
 func CreateConfig(r *http.Request) *diff.Config {
 
 	config := diff.NewConfig()
-	config.ExcludeExamples = getBoolQueryString(r, "exclude-examples", false)
-	config.ExcludeDescription = getBoolQueryString(r, "exclude-description", false)
-	config.PathFilter = getQueryString(r, "path-filter", "")
-	config.FilterExtension = getQueryString(r, "filter-extension", "")
-	config.PathPrefixBase = getQueryString(r, "path-prefix-base", "")
-	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", "")
-	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", "")
-	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", "")
+	config.ExcludeExamples = getBoolQueryString(r, "exclude-examples", config.ExcludeExamples)
+	config.ExcludeDescription = getBoolQueryString(r, "exclude-description", config.ExcludeDescription)
+	config.PathFilter = getQueryString(r, "path-filter", config.PathFilter)
+	config.FilterExtension = getQueryString(r, "filter-extension", config.FilterExtension)
+	config.PathPrefixBase = getQueryString(r, "path-prefix-base", config.PathPrefixBase)
+	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
+	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
+	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
 	config.BreakingOnly = false // breaking-only is deprecated
-	config.DeprecationDays = getIntQueryString(r, "deprecation-days", 0)
-	config.ExcludeEndpoints = getBoolQueryString(r, "exclude-endpoints", false)
+	config.DeprecationDays = getIntQueryString(r, "deprecation-days", config.DeprecationDays)
+	config.ExcludeEndpoints = getBoolQueryString(r, "exclude-endpoints", config.ExcludeEndpoints)
 	// config.IncludeExtensions = StringSet{}
 
 	return config
