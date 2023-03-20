@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -28,11 +29,20 @@ func BreakingChanges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res := map[string][]checker.BackwardCompatibilityError{"breaking-changes": breakingChanges}
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/yaml")
-	err := yaml.NewEncoder(w).Encode(map[string][]checker.BackwardCompatibilityError{"breaking-changes": breakingChanges})
-	if err != nil {
-		log.Errorf("failed to encode diff report with %v", err)
+	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
+		w.Header().Set(HeaderContentType, HeaderAppYaml)
+		err := yaml.NewEncoder(w).Encode(res)
+		if err != nil {
+			log.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
+		}
+	} else {
+		w.Header().Set(HeaderContentType, HeaderAppJson)
+		err := json.NewEncoder(w).Encode(res)
+		if err != nil {
+			log.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
+		}
 	}
 }
 

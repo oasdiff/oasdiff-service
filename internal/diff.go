@@ -22,17 +22,17 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	diffReport, code := createDiffReport(r, base, revision)
+	res, code := createDiffReport(r, base, revision)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/yaml")
-	err := yaml.NewEncoder(w).Encode(diffReport)
+	w.Header().Set(HeaderContentType, HeaderAppYaml)
+	err := yaml.NewEncoder(w).Encode(res)
 	if err != nil {
-		log.Errorf("failed to encode diff report with %v", err)
+		log.Errorf("failed to encode 'diff' report with '%v'", err)
 	}
 }
 
