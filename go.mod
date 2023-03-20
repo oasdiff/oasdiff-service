@@ -8,7 +8,7 @@ require (
 	github.com/onrik/logrus v0.10.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
-	github.com/tufin/oasdiff v1.3.9
+	github.com/tufin/oasdiff v1.3.13
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -25,6 +25,6 @@ require (
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )
