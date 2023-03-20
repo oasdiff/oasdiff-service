@@ -43,7 +43,7 @@ func options(methods []string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type,Content-Length,Server,Date,access-control-allow-methods,access-control-allow-origin")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		w.Header().Set("Access-Control-Max-Age", "3600")
 		w.WriteHeader(http.StatusNoContent)
 	}
