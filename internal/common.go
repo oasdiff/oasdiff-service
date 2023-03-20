@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -76,23 +77,23 @@ func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 	}
 
 	// create temporary files for base and revision
-	base, code := createTempFile(dir, "base")
+	base, code := createFile(dir, "base")
 	if code != http.StatusOK {
 		os.RemoveAll(dir)
 		return "", nil, nil, code
 	}
-	revision, code := createTempFile(dir, "revision")
+	revision, code := createFile(dir, "revision")
 	if code != http.StatusOK {
 		os.RemoveAll(dir)
 		CloseFile(base)
 		return "", nil, nil, code
 	}
 
-	contentType := r.Header.Get("Content-Type")
-	if strings.HasPrefix(contentType, "multipart/form-data") {
+	contentType := r.Header.Get(HeaderContentType)
+	if strings.HasPrefix(contentType, HeaderMultipartFormData) {
 		// 32 MB is the default used by FormFile() function
 		if err := r.ParseMultipartForm(4); err != nil {
-			log.Infof("failed to parse 'multipart/form-data' request files with '%v'", err)
+			log.Infof("failed to parse '%s' request files with '%v'", HeaderMultipartFormData, err)
 			return "", nil, nil, http.StatusBadRequest
 		}
 		if code := copyMultipartFormData(r, "base", base); code != http.StatusOK {
@@ -101,9 +102,9 @@ func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 		if code := copyMultipartFormData(r, "revision", revision); code != http.StatusOK {
 			return "", nil, nil, code
 		}
-	} else if contentType == "application/x-www-form-urlencoded" {
+	} else if contentType == HeaderAppFormUrlEncoded {
 		if err := r.ParseForm(); err != nil {
-			log.Infof("failed to parse 'application/x-www-form-urlencoded' request with '%v'", err)
+			log.Infof("failed to parse '%s' request with '%v'", HeaderAppFormUrlEncoded, err)
 			return "", nil, nil, http.StatusBadRequest
 		}
 		if code := copyFormData(r, "base", base); code != http.StatusOK {
@@ -120,11 +121,12 @@ func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 	return dir, base, revision, http.StatusOK
 }
 
-func createTempFile(dir string, filename string) (*os.File, int) {
+func createFile(dir string, filename string) (*os.File, int) {
 
-	res, err := os.CreateTemp(dir, "")
+	f := fmt.Sprintf("%s/%s", dir, filename)
+	res, err := os.Create(f)
 	if err != nil {
-		log.Errorf("failed to create temp file '%s' with '%v'", filename, err)
+		log.Errorf("failed to create file '%s' with '%v'", f, err)
 		return nil, http.StatusInternalServerError
 	}
 
