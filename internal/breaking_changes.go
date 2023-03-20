@@ -71,7 +71,7 @@ func calcBreakingChanges(r *http.Request, base string, revision string) ([]check
 		return nil, http.StatusInternalServerError
 	}
 
-	c := checker.DefaultChecks()
+	c := checker.GetDefaultChecks()
 	c.Localizer = *localizations.New(getLocal(r), "en")
 
 	return checker.CheckBackwardCompatibility(c, diffReport, operationsSources), http.StatusOK
