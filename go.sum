@@ -62,6 +62,8 @@ github.com/tufin/oasdiff v1.3.9 h1:MgwM/h/B5c366868JKnSL+b8uCiAPvaax7hecCQOlXM=
 github.com/tufin/oasdiff v1.3.9/go.mod h1:BSaSdtn4hMguXq4saQXm8Xg/RbLLCsoXyIhRT8LfN/M=
 github.com/tufin/oasdiff v1.3.13 h1:fEfBdb0fEhMGr/+8qd4D9IcrRBueBbgdX1I0qtyKpYY=
 github.com/tufin/oasdiff v1.3.13/go.mod h1:J6VAT5uCwZDaisPjeKbnMlNyawrJCtZ119psfmRQiMs=
+github.com/tufin/oasdiff v1.3.16 h1:udFSyzGTcwXusAfDw5mIx9LVarZGaAzZO4EotziDhK0=
+github.com/tufin/oasdiff v1.3.16/go.mod h1:J6VAT5uCwZDaisPjeKbnMlNyawrJCtZ119psfmRQiMs=
 github.com/ugorji/go v1.2.7 h1:qYhyWUUd6WbiM+C6JZAUkIJt/1WrjzNHY9+KCIjVqTo=
 github.com/ugorji/go v1.2.7/go.mod h1:nF9osbDWLy6bDVv/Rtoh6QgnvNDpmCalQV5urGCCS6M=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
@@ -72,6 +74,8 @@ golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2 h1:Jvc7gsqn21cJHCmAWx0LiimpP
 golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0 h1:pVgRXcIictcr+lBQIFeiwuwtDIs4eL21OuM9nyAADmo=
 golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
+golang.org/x/exp v0.0.0-20230321023759-10a507213a29 h1:ooxPy7fPvB4kwsA2h+iBNHkAbp/4JxTSwCmvdjEYmug=
+golang.org/x/exp v0.0.0-20230321023759-10a507213a29/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.5.0 h1:MUK/U/4lj1t1oPg0HfuXDN/Z1wv31ZJ/YcPiGccS4DU=
 golang.org/x/sys v0.5.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
