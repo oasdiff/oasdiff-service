@@ -1,5 +1,7 @@
 # oasdiff-service
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/oasdiff/oasdiff-service)](https://goreportcard.com/report/github.com/oasdiff/oasdiff-service)
+
 ### Run diff on localhost
 ```
 curl -X POST \
