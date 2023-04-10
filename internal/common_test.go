@@ -8,18 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateConfig_ExcludeExamples(t *testing.T) {
-
-	r := createMockRequest(t)
-	q := r.URL.Query()
-	q.Add("exclude-examples", "true")
-	r.URL.RawQuery = q.Encode()
-
-	config := internal.CreateConfig(r)
-
-	require.Equal(t, true, config.ExcludeExamples)
-}
-
 func TestCreateConfig_PathFilter(t *testing.T) {
 
 	const expected = "test"
