@@ -10,13 +10,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/diff"
+	"github.com/tufin/oasdiff/utils"
 )
 
 func CreateConfig(r *http.Request) *diff.Config {
 
 	config := diff.NewConfig()
-	config.ExcludeExamples = getBoolQueryString(r, "exclude-examples", config.ExcludeExamples)
-	config.ExcludeDescription = getBoolQueryString(r, "exclude-description", config.ExcludeDescription)
 	config.PathFilter = getQueryString(r, "path-filter", config.PathFilter)
 	config.FilterExtension = getQueryString(r, "filter-extension", config.FilterExtension)
 	config.PathPrefixBase = getQueryString(r, "path-prefix-base", config.PathPrefixBase)
@@ -25,7 +24,10 @@ func CreateConfig(r *http.Request) *diff.Config {
 	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
 	config.BreakingOnly = false // breaking-only is deprecated
 	config.DeprecationDays = getIntQueryString(r, "deprecation-days", config.DeprecationDays)
-	config.ExcludeEndpoints = getBoolQueryString(r, "exclude-endpoints", config.ExcludeEndpoints)
+	excludeExamples := getBoolQueryString(r, "exclude-examples", false)
+	excludeDescription := getBoolQueryString(r, "exclude-description", false)
+	excludeEndpoints := getBoolQueryString(r, "exclude-endpoints", false)
+	config.SetExcludeElements(utils.StringSet{}, excludeExamples, excludeDescription, excludeEndpoints)
 	// config.IncludeExtensions = StringSet{}
 
 	return config
