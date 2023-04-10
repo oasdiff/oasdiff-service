@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
+	"github.com/tufin/oasdiff/report"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,10 +30,14 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set(HeaderContentType, HeaderAppYaml)
-	err := yaml.NewEncoder(w).Encode(res)
-	if err != nil {
-		log.Errorf("failed to encode 'diff' report with '%v'", err)
+	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
+		w.Write([]byte(report.GetTextReportAsString(res)))
+	} else {
+		w.Header().Set(HeaderContentType, HeaderAppYaml)
+		err := yaml.NewEncoder(w).Encode(res)
+		if err != nil {
+			log.Errorf("failed to encode 'diff' report with '%v'", err)
+		}
 	}
 }
 
