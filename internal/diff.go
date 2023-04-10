@@ -29,15 +29,23 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
-		w.Write([]byte(report.GetTextReportAsString(res)))
-	} else {
-		w.Header().Set(HeaderContentType, HeaderAppYaml)
-		err := yaml.NewEncoder(w).Encode(res)
+		html, err := report.GetHTMLReportAsString(res)
 		if err != nil {
-			log.Errorf("failed to encode 'diff' report with '%v'", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Errorf("failed to generate HTML diff report with '%v'", err)
+			return
 		}
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(html))
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set(HeaderContentType, HeaderAppYaml)
+	err := yaml.NewEncoder(w).Encode(res)
+	if err != nil {
+		log.Errorf("failed to encode 'diff' report with '%v'", err)
 	}
 }
 
