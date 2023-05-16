@@ -58,8 +58,8 @@ github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/tidwall/gjson v1.14.3 h1:9jvXn7olKEHU1S9vwoMGliaT8jq1vJ7IH/n9zD9Dnlw=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
 github.com/tidwall/pretty v1.2.0 h1:RWIZEg2iJ8/g6fDDYzMpobmaoGh5OLl4AXtGUGPcqCs=
-github.com/tufin/oasdiff v1.5.2 h1:YrlC2GRx0iQl42sljqV8qcWQQNyNpOLqvyK6akuQJFA=
-github.com/tufin/oasdiff v1.5.2/go.mod h1:FQdskXYH6CZmzaGS8RVNDZBDj9KnjHhaEMPN9M4M+ms=
+github.com/tufin/oasdiff v1.5.9 h1:tOTMBgJmpBefG/gVfFyNOllP2q+cs33X9Xf6OMaDP2s=
+github.com/tufin/oasdiff v1.5.9/go.mod h1:FQdskXYH6CZmzaGS8RVNDZBDj9KnjHhaEMPN9M4M+ms=
 github.com/ugorji/go v1.2.7 h1:qYhyWUUd6WbiM+C6JZAUkIJt/1WrjzNHY9+KCIjVqTo=
 github.com/ugorji/go v1.2.7/go.mod h1:nF9osbDWLy6bDVv/Rtoh6QgnvNDpmCalQV5urGCCS6M=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
