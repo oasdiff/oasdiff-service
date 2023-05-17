@@ -6,7 +6,7 @@ require (
 	github.com/getkin/kin-openapi v0.116.0
 	github.com/gorilla/mux v1.8.0
 	github.com/onrik/logrus v0.10.0
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.1
 	github.com/stretchr/testify v1.8.2
 	github.com/tufin/oasdiff v1.5.2
 	gopkg.in/yaml.v3 v3.0.1
