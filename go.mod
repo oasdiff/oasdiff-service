@@ -7,7 +7,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/onrik/logrus v0.10.0
 	github.com/sirupsen/logrus v1.9.2
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/tufin/oasdiff v1.5.10
 	gopkg.in/yaml.v3 v3.0.1
 )
