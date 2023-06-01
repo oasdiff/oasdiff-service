@@ -57,7 +57,7 @@ func calcBreakingChanges(r *http.Request, base string, revision string) ([]check
 	config.IncludeExtensions.Add(checker.XExtensibleEnumExtension)
 
 	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = false
+	loader.IsExternalRefsAllowed = true
 
 	s1, err := checker.LoadOpenAPISpecInfo(loader, base)
 	if err != nil {
