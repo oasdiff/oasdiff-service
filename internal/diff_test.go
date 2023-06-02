@@ -45,6 +45,5 @@ func TestDiff(t *testing.T) {
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report diff.Diff
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
-	require.NoError(t, err)
 	require.False(t, report.Empty())
 }
