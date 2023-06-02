@@ -37,7 +37,7 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(html))
+		_, _ = w.Write([]byte(html))
 		return
 	}
 
