@@ -27,7 +27,7 @@ func CreateConfig(r *http.Request) *diff.Config {
 	excludeExamples := getBoolQueryString(r, "exclude-examples", false)
 	excludeDescription := getBoolQueryString(r, "exclude-description", false)
 	excludeEndpoints := getBoolQueryString(r, "exclude-endpoints", false)
-	config.SetExcludeElements(utils.StringSet{}, excludeExamples, excludeDescription, excludeEndpoints)
+	config.SetExcludeElements(utils.StringSet{"endpoints": struct{}{}}, excludeExamples, excludeDescription, excludeEndpoints)
 	// config.IncludeExtensions = StringSet{}
 
 	return config
