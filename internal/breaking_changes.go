@@ -49,12 +49,7 @@ func BreakingChanges(w http.ResponseWriter, r *http.Request) {
 
 func calcBreakingChanges(r *http.Request, base string, revision string) ([]checker.BackwardCompatibilityError, int) {
 
-	config := CreateConfig(r)
-
-	// breaking changes
-	config.IncludeExtensions.Add(checker.XStabilityLevelExtension)
-	config.IncludeExtensions.Add(diff.SunsetExtension)
-	config.IncludeExtensions.Add(checker.XExtensibleEnumExtension)
+	config := CreateConfig(r).WithCheckBreaking()
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true

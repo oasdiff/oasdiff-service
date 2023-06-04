@@ -10,7 +10,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/utils"
 )
 
 func CreateConfig(r *http.Request) *diff.Config {
@@ -22,13 +21,7 @@ func CreateConfig(r *http.Request) *diff.Config {
 	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
 	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
 	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
-	config.BreakingOnly = false // breaking-only is deprecated
 	config.DeprecationDays = getIntQueryString(r, "deprecation-days", config.DeprecationDays)
-	excludeExamples := getBoolQueryString(r, "exclude-examples", false)
-	excludeDescription := getBoolQueryString(r, "exclude-description", false)
-	excludeEndpoints := getBoolQueryString(r, "exclude-endpoints", false)
-	config.SetExcludeElements(utils.StringSet{"endpoints": struct{}{}}, excludeExamples, excludeDescription, excludeEndpoints)
-	// config.IncludeExtensions = StringSet{}
 
 	return config
 }
