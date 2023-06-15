@@ -26,42 +26,6 @@ func CreateConfig(r *http.Request) *diff.Config {
 	return config
 }
 
-func getQueryString(r *http.Request, key string, defaultValue string) string {
-
-	if val, ok := r.URL.Query()[key]; ok {
-		return val[0]
-	}
-
-	return defaultValue
-}
-
-func getIntQueryString(r *http.Request, key string, defaultValue int) int {
-
-	if val, ok := r.URL.Query()[key]; ok {
-		if res, err := strconv.Atoi(val[0]); err == nil && res >= 0 {
-			return res
-		}
-		log.Infof("invalid query string '%s: %s' (using default '%d')", key, val[0], defaultValue)
-	}
-
-	return defaultValue
-}
-
-func getBoolQueryString(r *http.Request, key string, defaultValue bool) bool {
-
-	if val, ok := r.URL.Query()[key]; ok {
-		if val[0] == "true" {
-			return true
-		}
-		if val[0] == "false" {
-			return false
-		}
-		log.Infof("invalid query string '%s: %s' (using default '%v')", key, val[0], defaultValue)
-	}
-
-	return defaultValue
-}
-
 func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 
 	// create a temporary directory
@@ -116,6 +80,14 @@ func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
 	return dir, base, revision, http.StatusOK
 }
 
+func CloseFile(f *os.File) {
+
+	err := f.Close()
+	if err != nil {
+		log.Errorf("failed to close file with %v", err)
+	}
+}
+
 func createFile(dir string, filename string) (*os.File, int) {
 
 	f := fmt.Sprintf("%s/%s", dir, filename)
@@ -168,10 +140,23 @@ func copyFormData(r *http.Request, filename string, res *os.File) int {
 	return http.StatusOK
 }
 
-func CloseFile(f *os.File) {
+func getIntQueryString(r *http.Request, key string, defaultValue int) int {
 
-	err := f.Close()
-	if err != nil {
-		log.Errorf("failed to close file with %v", err)
+	if val, ok := r.URL.Query()[key]; ok {
+		if res, err := strconv.Atoi(val[0]); err == nil && res >= 0 {
+			return res
+		}
+		log.Infof("invalid query string '%s: %s' (using default '%d')", key, val[0], defaultValue)
 	}
+
+	return defaultValue
+}
+
+func getQueryString(r *http.Request, key string, defaultValue string) string {
+
+	if val, ok := r.URL.Query()[key]; ok {
+		return val[0]
+	}
+
+	return defaultValue
 }

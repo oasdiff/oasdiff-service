@@ -22,11 +22,15 @@ func main() {
 
 	const diff, breakingChanges = "/diff", "/breaking-changes"
 	serve(
-		[]string{diff, diff, breakingChanges, breakingChanges},
-		[]string{http.MethodPost, http.MethodOptions, http.MethodPost, http.MethodOptions},
+		[]string{
+			diff, diff, diff,
+			breakingChanges, breakingChanges, breakingChanges},
+		[]string{
+			http.MethodPost, http.MethodGet, http.MethodOptions,
+			http.MethodPost, http.MethodGet, http.MethodOptions},
 		[]func(http.ResponseWriter, *http.Request){
-			access(internal.Diff), options([]string{http.MethodPost}),
-			access(internal.BreakingChanges), options([]string{http.MethodPost})},
+			access(internal.DiffFromFile), access(internal.DiffFromUri), options([]string{http.MethodPost}),
+			access(internal.BreakingChangesFromFile), access(internal.BreakingChangesFromUri), options([]string{http.MethodPost})},
 	)
 }
 

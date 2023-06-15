@@ -13,7 +13,24 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func BreakingChanges(w http.ResponseWriter, r *http.Request) {
+func BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
+
+	base := getQueryString(r, "base", "")
+	if base == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	revision := getQueryString(r, "revision", "")
+	if revision == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	calcBreakingChanges(w, r, base, revision)
+}
+
+func BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 
 	dir, base, revision, code := CreateFiles(r)
 	if code != http.StatusOK {
@@ -24,13 +41,40 @@ func BreakingChanges(w http.ResponseWriter, r *http.Request) {
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	breakingChanges, code := calcBreakingChanges(r, base.Name(), revision.Name())
-	if code != http.StatusOK {
-		w.WriteHeader(code)
+	calcBreakingChanges(w, r, base.Name(), revision.Name())
+}
+
+func calcBreakingChanges(w http.ResponseWriter, r *http.Request, base string, revision string) {
+
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+
+	s1, err := checker.LoadOpenAPISpecInfo(loader, base)
+	if err != nil {
+		log.Infof("failed to load base spec from %q with %v", base, err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	s2, err := checker.LoadOpenAPISpecInfo(loader, revision)
+	if err != nil {
+		log.Infof("failed to load revision spec from %q with %v", revision, err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	res := map[string][]checker.BackwardCompatibilityError{"breaking-changes": breakingChanges}
+	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
+		CreateConfig(r).WithCheckBreaking(), s1, s2)
+	if err != nil {
+		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	c := checker.GetDefaultChecks()
+	c.Localizer = *localizations.New(getLocal(r), "en")
+
+	res := map[string][]checker.BackwardCompatibilityError{
+		"breaking-changes": checker.CheckBackwardCompatibility(c, diffReport, operationsSources)}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
@@ -45,35 +89,6 @@ func BreakingChanges(w http.ResponseWriter, r *http.Request) {
 			log.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
 		}
 	}
-}
-
-func calcBreakingChanges(r *http.Request, base string, revision string) ([]checker.BackwardCompatibilityError, int) {
-
-	config := CreateConfig(r).WithCheckBreaking()
-
-	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = true
-
-	s1, err := checker.LoadOpenAPISpecInfo(loader, base)
-	if err != nil {
-		log.Infof("failed to load base spec from %q with %v", base, err)
-		return nil, http.StatusBadRequest
-	}
-	s2, err := checker.LoadOpenAPISpecInfo(loader, revision)
-	if err != nil {
-		log.Infof("failed to load revision spec from %q with %v", revision, err)
-		return nil, http.StatusBadRequest
-	}
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(config, s1, s2)
-	if err != nil {
-		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
-		return nil, http.StatusInternalServerError
-	}
-
-	c := checker.GetDefaultChecks()
-	c.Localizer = *localizations.New(getLocal(r), "en")
-
-	return checker.CheckBackwardCompatibility(c, diffReport, operationsSources), http.StatusOK
 }
 
 func getLocal(r *http.Request) string {
