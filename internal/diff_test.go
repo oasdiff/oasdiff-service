@@ -3,7 +3,6 @@ package internal_test
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -42,7 +41,7 @@ func TestDiffFromFile(t *testing.T) {
 	internal.DiffFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
-	diff, err := ioutil.ReadAll(w.Result().Body)
+	diff, err := io.ReadAll(w.Result().Body)
 	require.NoError(t, err)
 	require.NotEmpty(t, diff)
 }
