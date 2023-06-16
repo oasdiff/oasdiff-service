@@ -29,8 +29,8 @@ func main() {
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodPost, http.MethodGet, http.MethodOptions},
 		[]func(http.ResponseWriter, *http.Request){
-			access(internal.DiffFromFile), access(internal.DiffFromUri), options([]string{http.MethodPost}),
-			access(internal.BreakingChangesFromFile), access(internal.BreakingChangesFromUri), options([]string{http.MethodPost})},
+			access(internal.DiffFromFile), access(internal.DiffFromUri), options([]string{http.MethodPost, http.MethodGet}),
+			access(internal.BreakingChangesFromFile), access(internal.BreakingChangesFromUri), options([]string{http.MethodPost, http.MethodGet})},
 	)
 }
 
