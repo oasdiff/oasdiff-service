@@ -40,7 +40,7 @@ func TestBreakingChanges(t *testing.T) {
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	internal.BreakingChanges(w, r)
+	internal.BreakingChangesFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report map[string][]checker.BackwardCompatibilityError

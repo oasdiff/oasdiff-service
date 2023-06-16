@@ -3,7 +3,6 @@ package internal_test
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDiff(t *testing.T) {
+func TestDiffFromFile(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -39,10 +38,10 @@ func TestDiff(t *testing.T) {
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	internal.Diff(w, r)
+	internal.DiffFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
-	diff, err := ioutil.ReadAll(w.Result().Body)
+	diff, err := io.ReadAll(w.Result().Body)
 	require.NoError(t, err)
 	require.NotEmpty(t, diff)
 }

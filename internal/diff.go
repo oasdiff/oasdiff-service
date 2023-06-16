@@ -2,6 +2,7 @@ package internal
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -12,25 +13,35 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Diff(w http.ResponseWriter, r *http.Request) {
+func DiffFromUri(w http.ResponseWriter, r *http.Request) {
 
-	dir, base, revision, code := CreateFiles(r)
+	base := getQueryString(r, "base", "")
+	if base == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	revision := getQueryString(r, "revision", "")
+	if revision == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	baseSpec, revisionSpec, code := createSpecFromUri(base, revision)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
-	defer CloseFile(base)
-	defer CloseFile(revision)
-	defer os.RemoveAll(dir)
 
-	res, code := createDiffReport(r, base, revision)
+	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
+	// html response
 	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
-		html, err := report.GetHTMLReportAsString(res)
+		html, err := report.GetHTMLReportAsString(diffReport)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Errorf("failed to generate HTML diff report with '%v'", err)
@@ -41,33 +52,117 @@ func Diff(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// json response
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set(HeaderContentType, HeaderAppYaml)
-	err := yaml.NewEncoder(w).Encode(res)
+	err := yaml.NewEncoder(w).Encode(diffReport)
 	if err != nil {
-		log.Errorf("failed to encode 'diff' report with '%v'", err)
+		log.Errorf("failed to encode 'diff' report '%s' with '%v'", baseSpec.Info.Title, err)
 	}
 }
 
-func createDiffReport(r *http.Request, base *os.File, revision *os.File) (*diff.Diff, int) {
+func DiffFromFile(w http.ResponseWriter, r *http.Request) {
+
+	dir, base, revision, code := CreateFiles(r)
+	if code != http.StatusOK {
+		w.WriteHeader(code)
+		return
+	}
+	defer CloseFile(base)
+	defer CloseFile(revision)
+	defer os.RemoveAll(dir)
+
+	baseSpec, revisionSpec, code := createSpecFromFile(base, revision)
+	if code != http.StatusOK {
+		w.WriteHeader(code)
+		return
+	}
+
+	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
+	if code != http.StatusOK {
+		w.WriteHeader(code)
+		return
+	}
+
+	// html response
+	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
+		html, err := report.GetHTMLReportAsString(diffReport)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Errorf("failed to generate HTML diff report with '%v'", err)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(html))
+		return
+	}
+
+	// json response
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set(HeaderContentType, HeaderAppYaml)
+	err := yaml.NewEncoder(w).Encode(diffReport)
+	if err != nil {
+		log.Errorf("failed to encode 'diff' report '%s' with '%v'", baseSpec.Info.Title, err)
+	}
+}
+
+func createSpecFromUri(base string, revision string) (*openapi3.T, *openapi3.T, int) {
+
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+
+	u, err := url.Parse(base)
+	if err != nil {
+		log.Infof("failed to url parse base spec '%s' with '%v'", base, err)
+		return nil, nil, http.StatusBadRequest
+	}
+	s1, err := loader.LoadFromURI(u)
+	if err != nil {
+		log.Infof("failed to load base spec from '%s' with '%v'", base, err)
+		return nil, nil, http.StatusBadRequest
+	}
+
+	u, err = url.Parse(revision)
+	if err != nil {
+		log.Infof("failed to url parse revision spec '%s' with '%v'", revision, err)
+		return nil, nil, http.StatusBadRequest
+	}
+	s2, err := loader.LoadFromURI(u)
+	if err != nil {
+		log.Infof("failed to load revision spec from '%s' with '%v'", revision, err)
+		return nil, nil, http.StatusBadRequest
+	}
+
+	return s1, s2, http.StatusOK
+}
+
+func createSpecFromFile(base *os.File, revision *os.File) (*openapi3.T, *openapi3.T, int) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = false
+
 	s1, err := loader.LoadFromFile(base.Name())
 	if err != nil {
-		log.Infof("failed to load base spec from %q with %v", base.Name(), err)
-		return nil, http.StatusBadRequest
+		log.Infof("failed to load base spec from '%s' with '%v'", base.Name(), err)
+		return nil, nil, http.StatusBadRequest
 	}
+
 	s2, err := load.From(loader, revision.Name())
 	if err != nil {
-		log.Infof("failed to load revision spec from %q with %v", revision.Name(), err)
-		return nil, http.StatusBadRequest
+		log.Infof("failed to load revision spec from '%s' with '%v'", revision.Name(), err)
+		return nil, nil, http.StatusBadRequest
 	}
+
+	return s1, s2, http.StatusOK
+}
+
+func createDiffReport(r *http.Request, s1 *openapi3.T, s2 *openapi3.T) (*diff.Diff, int) {
+
 	config := CreateConfig(r)
 
 	diffReport, err := diff.Get(config, s1, s2)
 	if err != nil {
-		log.Infof("failed to load revision spec from %q with %v", revision.Name(), err)
+		log.Infof("failed to calculate diff between a pair of OpenAPI objects '%s' with %v", s1.Info.Title, err)
 		return nil, http.StatusBadRequest
 	}
 
