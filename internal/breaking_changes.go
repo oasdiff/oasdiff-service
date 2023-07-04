@@ -10,6 +10,7 @@ import (
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/checker/localizations"
 	"github.com/tufin/oasdiff/diff"
+	"github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
 
@@ -91,12 +92,12 @@ func calcBreakingChanges(r *http.Request, base string, revision string) (checker
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
-	s1, err := checker.LoadOpenAPISpecInfo(loader, base)
+	s1, err := load.LoadSpecInfo(loader, base)
 	if err != nil {
 		log.Infof("failed to load base spec from %q with %v", base, err)
 		return nil, http.StatusBadRequest
 	}
-	s2, err := checker.LoadOpenAPISpecInfo(loader, revision)
+	s2, err := load.LoadSpecInfo(loader, revision)
 	if err != nil {
 		log.Infof("failed to load revision spec from %q with %v", revision, err)
 		return nil, http.StatusBadRequest
