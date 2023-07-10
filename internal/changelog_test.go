@@ -15,7 +15,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestBreakingChanges(t *testing.T) {
+func TestChangelog(t *testing.T) {
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -35,15 +35,15 @@ func TestBreakingChanges(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, writer.Close())
 
-	r, err := http.NewRequest(http.MethodPost, "/breaking-changes", body)
+	r, err := http.NewRequest(http.MethodPost, "/changelog", body)
 	require.NoError(t, err)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	internal.BreakingChangesFromFile(w, r)
+	internal.ChangelogFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report map[string][]checker.BackwardCompatibilityError
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
-	require.True(t, len(report["breaking-changes"]) > 0)
+	require.True(t, len(report["changes"]) > 0)
 }
