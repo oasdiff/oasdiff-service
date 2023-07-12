@@ -1,5 +1,5 @@
-cloud.google.com/go v0.110.3 h1:wwearW+L7sAPSomPIgJ3bVn6Ck00HGQnn5HMLwf0azo=
-cloud.google.com/go v0.110.3/go.mod h1:+EYjdK8e5RME/VY/qLCAtuyALQ9q67dvuum8i+H5xsI=
+cloud.google.com/go v0.110.5 h1:9z8Gn5rlVah5I+vyxARz5bCMuQGIGqJBSNq1mwHQhMk=
+cloud.google.com/go v0.110.5/go.mod h1:+EYjdK8e5RME/VY/qLCAtuyALQ9q67dvuum8i+H5xsI=
 github.com/TwiN/go-color v1.4.0 h1:fNbOwOrvup5oj934UragnW0B1WKaAkkB85q19Y7h4ng=
 github.com/TwiN/go-color v1.4.0/go.mod h1:0QTVEPlu+AoCyTrho7bXbVkrCkVpdQr7YF7PYWEtSxM=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
@@ -58,8 +58,8 @@ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXl
 github.com/tidwall/gjson v1.14.4 h1:uo0p8EbA09J7RQaflQ1aBRffTR7xedD2bcIVSYxLnkM=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
 github.com/tidwall/pretty v1.2.0 h1:RWIZEg2iJ8/g6fDDYzMpobmaoGh5OLl4AXtGUGPcqCs=
-github.com/tufin/oasdiff v1.5.20 h1:lM/7Da6jZ2MJFFHCQH4TLoAMYokLVuqk2onALA9Pl1o=
-github.com/tufin/oasdiff v1.5.20/go.mod h1:a5mZUQTXq83oCiOlx96T595a+jgPa3Co3kvSk0Nw4Jo=
+github.com/tufin/oasdiff v1.6.0 h1:6OShdhNp28dNvV+1K7FdfCpdBStu41/D7VxAsL1kXMk=
+github.com/tufin/oasdiff v1.6.0/go.mod h1:ttnFUMWgTWg03sAB5zSEsqCJXq9xMcmI2ur314giCaU=
 github.com/ugorji/go v1.2.7 h1:qYhyWUUd6WbiM+C6JZAUkIJt/1WrjzNHY9+KCIjVqTo=
 github.com/ugorji/go v1.2.7/go.mod h1:nF9osbDWLy6bDVv/Rtoh6QgnvNDpmCalQV5urGCCS6M=
 github.com/ugorji/go/codec v1.2.7/go.mod h1:WGN1fab3R1fzQlVQTkfxVtIBhWDRqOviHU95kRgeqEY=
