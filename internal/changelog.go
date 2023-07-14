@@ -113,5 +113,5 @@ func calcChangelog(r *http.Request, base string, revision string) (checker.Chang
 	c := checker.GetChecks([]string{})
 	c.Localizer = *localizations.New(getLocal(r), "en")
 
-	return checker.CheckBackwardCompatibility(c, diffReport, operationsSources), http.StatusOK
+	return checker.CheckBackwardCompatibilityUntilLevel(c, diffReport, operationsSources, checker.INFO), http.StatusOK
 }
