@@ -34,7 +34,7 @@ func BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string][]checker.BackwardCompatibilityError{
+	res := map[string]checker.Changes{
 		"breaking-changes": changes}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
@@ -69,7 +69,7 @@ func BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string][]checker.BackwardCompatibilityError{
+	res := map[string]checker.Changes{
 		"breaking-changes": changes}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
@@ -87,7 +87,7 @@ func BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func calcBreakingChanges(r *http.Request, base string, revision string) (checker.BackwardCompatibilityErrors, int) {
+func calcBreakingChanges(r *http.Request, base string, revision string) (checker.Changes, int) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true

@@ -43,7 +43,7 @@ func TestChangelog(t *testing.T) {
 	internal.ChangelogFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
-	var report map[string][]checker.BackwardCompatibilityError
+	var report map[string][]checker.ApiChange
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
 	require.True(t, len(report["changes"]) > 0)
 }

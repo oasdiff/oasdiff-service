@@ -34,7 +34,7 @@ func ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string][]checker.BackwardCompatibilityError{
+	res := map[string]checker.Changes{
 		"changelog": changes}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
@@ -69,7 +69,7 @@ func ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string][]checker.BackwardCompatibilityError{
+	res := map[string]checker.Changes{
 		"changes": changes}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
@@ -87,7 +87,7 @@ func ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func calcChangelog(r *http.Request, base string, revision string) (checker.BackwardCompatibilityErrors, int) {
+func calcChangelog(r *http.Request, base string, revision string) (checker.Changes, int) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
@@ -110,7 +110,7 @@ func calcChangelog(r *http.Request, base string, revision string) (checker.Backw
 		return nil, http.StatusInternalServerError
 	}
 
-	c := checker.GetAllChecks([]string{})
+	c := checker.GetChecks([]string{})
 	c.Localizer = *localizations.New(getLocal(r), "en")
 
 	return checker.CheckBackwardCompatibility(c, diffReport, operationsSources), http.StatusOK

@@ -22,18 +22,6 @@ func TestCreateConfig_PathFilter(t *testing.T) {
 	require.Equal(t, expected, config.PathFilter)
 }
 
-func TestCreateConfig_DeprecationDays(t *testing.T) {
-
-	r := createMockRequest(t)
-	q := r.URL.Query()
-	q.Add("deprecation-days", "3")
-	r.URL.RawQuery = q.Encode()
-
-	config := internal.CreateConfig(r)
-
-	require.Equal(t, 3, config.DeprecationDays)
-}
-
 func createMockRequest(t *testing.T) *http.Request {
 
 	res, err := http.NewRequest("GET", "/", nil)

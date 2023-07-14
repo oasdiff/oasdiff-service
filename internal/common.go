@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -21,7 +20,6 @@ func CreateConfig(r *http.Request) *diff.Config {
 	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
 	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
 	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
-	config.DeprecationDays = getIntQueryString(r, "deprecation-days", config.DeprecationDays)
 
 	return config
 }
@@ -138,18 +136,6 @@ func copyFormData(r *http.Request, filename string, res *os.File) int {
 	}
 
 	return http.StatusOK
-}
-
-func getIntQueryString(r *http.Request, key string, defaultValue int) int {
-
-	if val, ok := r.URL.Query()[key]; ok {
-		if res, err := strconv.Atoi(val[0]); err == nil && res >= 0 {
-			return res
-		}
-		log.Infof("invalid query string '%s: %s' (using default '%d')", key, val[0], defaultValue)
-	}
-
-	return defaultValue
 }
 
 func getQueryString(r *http.Request, key string, defaultValue string) string {

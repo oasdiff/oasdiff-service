@@ -17,3 +17,11 @@ curl -X POST \
     -F revision=@data/openapi-test3.yaml \
     https://api.oasdiff.com/breaking-changes
 ```
+
+### Run changelog using cloud-run
+```
+curl -X POST \
+    -F base=@data/openapi-test1.yaml \
+    -F revision=@data/openapi-test3.yaml \
+    https://api.oasdiff.com/changelog
+```
