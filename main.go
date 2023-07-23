@@ -12,6 +12,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/oasdiff/go-common/ds"
+	"github.com/oasdiff/go-common/env"
+	"github.com/oasdiff/management/tenant"
 	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
@@ -20,7 +23,14 @@ import (
 
 func main() {
 
-	const diff, breakingChanges, changelog = "/diff", "/breaking-changes", "/changelog"
+	var (
+		diff            = fmt.Sprintf("/tenants/%s/diff", tenant.PathParamTenantId)
+		breakingChanges = fmt.Sprintf("/tenants/%s/breaking-changes", tenant.PathParamTenantId)
+		changelog       = fmt.Sprintf("/tenants/%s/changelog", tenant.PathParamTenantId)
+
+		v = tenant.NewValidator(ds.NewClientWrapper(env.GetGCloudProject()))
+	)
+
 	serve(
 		[]string{
 			diff, diff, diff,
@@ -37,6 +47,7 @@ func main() {
 			access(internal.BreakingChangesFromFile), access(internal.BreakingChangesFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(internal.ChangelogFromFile), access(internal.ChangelogFromUri), options([]string{http.MethodPost, http.MethodGet}),
 		},
+		v.Validate,
 	)
 }
 

@@ -34,8 +34,7 @@ func ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string]checker.Changes{
-		"changelog": changes}
+	res := map[string]checker.Changes{"changelog": changes}
 	w.WriteHeader(http.StatusCreated)
 	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
