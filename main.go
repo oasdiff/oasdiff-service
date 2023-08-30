@@ -24,9 +24,9 @@ import (
 func main() {
 
 	var (
-		diff            = fmt.Sprintf("/tenants/%s/diff", tenant.PathParamTenantId)
-		breakingChanges = fmt.Sprintf("/tenants/%s/breaking-changes", tenant.PathParamTenantId)
-		changelog       = fmt.Sprintf("/tenants/%s/changelog", tenant.PathParamTenantId)
+		diff            = fmt.Sprintf("/tenants/{%s}/diff", tenant.PathParamTenantId)
+		breakingChanges = fmt.Sprintf("/tenants/{%s}/breaking-changes", tenant.PathParamTenantId)
+		changelog       = fmt.Sprintf("/tenants/{%s}/changelog", tenant.PathParamTenantId)
 
 		v = tenant.NewValidator(ds.NewClient(env.GetGCPProject(), env.GetGCPDatastoreNamespace()))
 	)
