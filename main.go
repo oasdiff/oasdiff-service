@@ -28,7 +28,7 @@ func main() {
 		breakingChanges = fmt.Sprintf("/tenants/%s/breaking-changes", tenant.PathParamTenantId)
 		changelog       = fmt.Sprintf("/tenants/%s/changelog", tenant.PathParamTenantId)
 
-		v = tenant.NewValidator(ds.NewClientWrapper(env.GetGCloudProject()))
+		v = tenant.NewValidator(ds.NewClient(env.GetGCPProject(), env.GetGCPDatastoreNamespace()))
 	)
 
 	serve(

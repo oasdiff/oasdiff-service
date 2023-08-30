@@ -8,7 +8,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/checker"
-	"github.com/tufin/oasdiff/checker/localizations"
 	"github.com/tufin/oasdiff/diff"
 	"github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
@@ -111,7 +110,7 @@ func calcBreakingChanges(r *http.Request, base string, revision string) (checker
 	}
 
 	c := checker.GetDefaultChecks()
-	c.Localizer = *localizations.New(getLocal(r), "en")
+	c.Localize = checker.NewLocalizer(getLocal(r), "en")
 
 	return checker.CheckBackwardCompatibility(c, diffReport, operationsSources), http.StatusOK
 }

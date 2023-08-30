@@ -7,7 +7,7 @@
 curl -X POST \
     -F base=@data/openapi-test1.yaml \
     -F revision=@data/openapi-test3.yaml \
-    http://localhost:8080/diff
+    http://localhost:8080/tenants/{tenant-id}/diff
 ```
 
 ### Run breaking-changes using cloud-run
@@ -15,7 +15,7 @@ curl -X POST \
 curl -X POST \
     -F base=@data/openapi-test1.yaml \
     -F revision=@data/openapi-test3.yaml \
-    https://api.oasdiff.com/breaking-changes
+    https://api.oasdiff.com/tenants/{tenant-id}/breaking-changes
 ```
 
 ### Run changelog using cloud-run
@@ -23,5 +23,5 @@ curl -X POST \
 curl -X POST \
     -F base=@data/openapi-test1.yaml \
     -F revision=@data/openapi-test3.yaml \
-    https://api.oasdiff.com/changelog
+    https://api.oasdiff.com/tenants/{tenant-id}/changelog
 ```
