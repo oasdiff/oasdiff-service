@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/oasdiff/go-common/ds"
 	"github.com/oasdiff/go-common/env"
-	"github.com/oasdiff/management/tenant"
+	"github.com/oasdiff/go-common/tenant"
 	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
