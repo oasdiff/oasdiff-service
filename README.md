@@ -4,12 +4,13 @@
 
 ### Creating a tenant
 Create a tenant and get a tenant ID:
-
-curl -d '{"tenant": "my-company", "email": "james@my-company.com"}' https://auth.oasdiff.com/tenants
+```
+curl -d '{"tenant": "my-company", "email": "james@my-company.com"}' https://register.oasdiff.com/tenants
+```
 You will get a response with your tenant ID:
-
+```
 {"id": "2ahh9d6a-2221-41d7-bbc5-a950958345"}
-
+```
 ### Run diff on localhost
 ```
 curl -X POST \
