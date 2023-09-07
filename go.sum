@@ -76,8 +76,8 @@ github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 h1:RWengNIwukTxcDr9M+97sNutRR1RKhG96O6jWumTTnw=
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826/go.mod h1:TaXosZuwdSHYgviHp1DAtfrULt5eUgsSMsZf+YrPgl8=
-github.com/oasdiff/go-common v0.2.11 h1:GrNSSef/YmGQhaU0z056w8qgfEALYP5n2xZDmU6xSHk=
-github.com/oasdiff/go-common v0.2.11/go.mod h1:wFpw3wBB+Yk45A3IjoTkIJrWApAw0v3Rjyj+KNeNSLE=
+github.com/oasdiff/go-common v0.2.12 h1:QO9qdV0hF4h85n9DHjvUg+9NBq2l+9KK/6TmqcjJsHM=
+github.com/oasdiff/go-common v0.2.12/go.mod h1:wFpw3wBB+Yk45A3IjoTkIJrWApAw0v3Rjyj+KNeNSLE=
 github.com/onrik/logrus v0.11.0 h1:pu+BCaWL36t0yQaj/2UHK2erf88dwssAKOT51mxPUVs=
 github.com/onrik/logrus v0.11.0/go.mod h1:fO2vlZwIdti6PidD3gV5YKt9Lq5ptpnP293RAe1ITwk=
 github.com/perimeterx/marshmallow v1.1.5 h1:a2LALqQ1BlHM8PZblsDdidgv1mWi1DgC2UmX50IvK2s=
