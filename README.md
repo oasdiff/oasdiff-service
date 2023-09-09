@@ -34,3 +34,5 @@ curl -X POST \
     -F revision=@data/openapi-test3.yaml \
     https://api.oasdiff.com/tenants/{tenant-id}/changelog
 ```
+### Errors
+oasdiff-service uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the 2xx range indicate success. Codes in the 4xx range indicate an error that failed given the information provided (e.g., invalid OpenAPI sepc format, a required parameter was omitted, etc.). Codes in the 5xx range indicate an error with oasdiff-service servers (these are rare)
