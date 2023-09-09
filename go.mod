@@ -3,7 +3,7 @@ module github.com/oasdiff/oasdiff-service
 go 1.21
 
 require (
-	github.com/getkin/kin-openapi v0.119.0
+	github.com/getkin/kin-openapi v0.120.0
 	github.com/gorilla/mux v1.8.0
 	github.com/oasdiff/go-common v0.2.12
 	github.com/onrik/logrus v0.11.0
@@ -45,7 +45,7 @@ require (
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
-	google.golang.org/api v0.138.0 // indirect
+	google.golang.org/api v0.139.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
