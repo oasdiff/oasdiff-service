@@ -18,16 +18,27 @@ const (
 	version = "v1.8.0"
 )
 
-func (h *Handler) SendTelemetry(r *http.Request, platform string, cmd string, args []string, acceptHeader string) error {
+func (h *Handler) SendTelemetry(r *http.Request, cmd string, args []string, acceptHeader string) error {
 
 	app := fmt.Sprintf("%s-service", model.Application)
-	t := model.NewTelemetry(app, version, cmd, args, toFlags(acceptHeader), mux.Vars(r)[tenant.PathParamTenantId], platform)
+	t := model.NewTelemetry(app, version, cmd, args, toFlags(acceptHeader),
+		mux.Vars(r)[tenant.PathParamTenantId], getPlatform(r))
 	if err := h.collector.Send(t); err != nil {
 		logrus.Errorf("failed to send telemetry '%+v' with '%v'", t, err)
 		return err
 	}
 
 	return nil
+}
+
+func getPlatform(r *http.Request) string {
+
+	agent := r.Header["User-Agent"]
+	if len(agent) > 0 {
+		return agent[0]
+	}
+
+	return "na"
 }
 
 func toFlags(acceptHeader string) map[string]string {

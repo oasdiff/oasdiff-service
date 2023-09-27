@@ -28,7 +28,7 @@ func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request)
 	}
 
 	acceptHeader := r.Header.Get(HeaderAccept)
-	_ = h.SendTelemetry(r, "url", CommandBreaking, []string{base, revision}, acceptHeader)
+	_ = h.SendTelemetry(r, CommandBreaking, []string{base, revision}, acceptHeader)
 
 	changes, code := calcBreakingChanges(r, base, revision)
 	if code != http.StatusOK {
@@ -65,7 +65,7 @@ func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request
 	defer os.RemoveAll(dir)
 
 	acceptHeader := r.Header.Get(HeaderAccept)
-	_ = h.SendTelemetry(r, "file", CommandBreaking, []string{"base", "revision"}, acceptHeader)
+	_ = h.SendTelemetry(r, CommandBreaking, []string{"base", "revision"}, acceptHeader)
 
 	changes, code := calcBreakingChanges(r, base.Name(), revision.Name())
 	if code != http.StatusOK {

@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -11,12 +12,15 @@ import (
 
 	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/oasdiff/telemetry/client"
+	"github.com/oasdiff/telemetry/model"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/checker"
 	"gopkg.in/yaml.v3"
 )
 
 func TestBreakingChanges(t *testing.T) {
+
+	const headerUserAgent = "go-test"
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -39,11 +43,16 @@ func TestBreakingChanges(t *testing.T) {
 	r, err := http.NewRequest(http.MethodPost, "/breaking-changes", body)
 	require.NoError(t, err)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
+	r.Header.Set("User-Agent", headerUserAgent)
 	w := httptest.NewRecorder()
 
 	called := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
+		var events map[string][]*model.Telemetry
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&events))
+		telemetry := events[model.KeyEvents][0]
+		require.Equal(t, headerUserAgent, telemetry.Platform)
 		called = true
 	}))
 	c := client.NewDefaultCollector()
