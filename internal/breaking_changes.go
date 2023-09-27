@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 
 	base := getQueryString(r, "base", "")
 	if base == "" {
@@ -27,16 +27,18 @@ func BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	acceptHeader := r.Header.Get(HeaderAccept)
+	_ = h.SendTelemetry(r, "url", CommandBreaking, []string{base, revision}, acceptHeader)
+
 	changes, code := calcBreakingChanges(r, base, revision)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
-	res := map[string]checker.Changes{
-		"breaking-changes": changes}
+	res := map[string]checker.Changes{"breaking-changes": changes}
 	w.WriteHeader(http.StatusCreated)
-	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
+	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
 		if err != nil {
@@ -51,7 +53,7 @@ func BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 
 	dir, base, revision, code := CreateFiles(r)
 	if code != http.StatusOK {
@@ -61,6 +63,9 @@ func BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 	defer CloseFile(base)
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
+
+	acceptHeader := r.Header.Get(HeaderAccept)
+	_ = h.SendTelemetry(r, "file", CommandBreaking, []string{"base", "revision"}, acceptHeader)
 
 	changes, code := calcBreakingChanges(r, base.Name(), revision.Name())
 	if code != http.StatusOK {

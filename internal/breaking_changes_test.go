@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/oasdiff/oasdiff-service/internal"
+	"github.com/oasdiff/telemetry/client"
 	"github.com/stretchr/testify/require"
 	"github.com/tufin/oasdiff/checker"
 	"gopkg.in/yaml.v3"
@@ -40,10 +41,19 @@ func TestBreakingChanges(t *testing.T) {
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
-	internal.BreakingChangesFromFile(w, r)
+	called := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		called = true
+	}))
+	c := client.NewDefaultCollector()
+	c.EventsUrl = server.URL
+
+	internal.NewHandler(c).BreakingChangesFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report map[string][]checker.ApiChange
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
 	require.True(t, len(report["breaking-changes"]) > 0)
+	require.True(t, called)
 }
