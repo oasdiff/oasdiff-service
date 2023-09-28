@@ -15,19 +15,19 @@ import (
 
 func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 
-	base := getQueryString(r, "base", "")
+	base := GetQueryString(r, "base", "")
 	if base == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	revision := getQueryString(r, "revision", "")
+	revision := GetQueryString(r, "revision", "")
 	if revision == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	acceptHeader := r.Header.Get(HeaderAccept)
+	acceptHeader := GetAcceptHeader(r)
 	_ = h.SendTelemetry(r, CommandBreaking, []string{base, revision}, acceptHeader)
 
 	changes, code := calcBreakingChanges(r, base, revision)
@@ -64,8 +64,8 @@ func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	acceptHeader := r.Header.Get(HeaderAccept)
-	_ = h.SendTelemetry(r, CommandBreaking, []string{"base", "revision"}, acceptHeader)
+	acceptHeader := GetAcceptHeader(r)
+	_ = h.SendTelemetry(r, CommandBreaking, []string{base.Name(), revision.Name()}, acceptHeader)
 
 	changes, code := calcBreakingChanges(r, base.Name(), revision.Name())
 	if code != http.StatusOK {
@@ -76,7 +76,7 @@ func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request
 	res := map[string]checker.Changes{
 		"breaking-changes": changes}
 	w.WriteHeader(http.StatusCreated)
-	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
+	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
 		if err != nil {

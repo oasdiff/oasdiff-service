@@ -47,7 +47,7 @@ func main() {
 		[]func(http.ResponseWriter, *http.Request){
 			access(internal.DiffFromFile), access(internal.DiffFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(h.BreakingChangesFromFile), access(h.BreakingChangesFromUri), options([]string{http.MethodPost, http.MethodGet}),
-			access(internal.ChangelogFromFile), access(internal.ChangelogFromUri), options([]string{http.MethodPost, http.MethodGet}),
+			access(h.ChangelogFromFile), access(h.ChangelogFromUri), options([]string{http.MethodPost, http.MethodGet}),
 		},
 		v.Validate,
 	)

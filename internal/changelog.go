@@ -13,19 +13,22 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 
-	base := getQueryString(r, "base", "")
+	base := GetQueryString(r, "base", "")
 	if base == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	revision := getQueryString(r, "revision", "")
+	revision := GetQueryString(r, "revision", "")
 	if revision == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	acceptHeader := GetAcceptHeader(r)
+	_ = h.SendTelemetry(r, CommandChangelog, []string{base, revision}, acceptHeader)
 
 	changes, code := calcChangelog(r, base, revision)
 	if code != http.StatusOK {
@@ -35,7 +38,7 @@ func ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 
 	res := map[string]checker.Changes{"changelog": changes}
 	w.WriteHeader(http.StatusCreated)
-	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
+	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
 		if err != nil {
@@ -50,7 +53,7 @@ func ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 
 	dir, base, revision, code := CreateFiles(r)
 	if code != http.StatusOK {
@@ -61,16 +64,18 @@ func ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
+	acceptHeader := GetAcceptHeader(r)
+	_ = h.SendTelemetry(r, CommandChangelog, []string{base.Name(), revision.Name()}, acceptHeader)
+
 	changes, code := calcChangelog(r, base.Name(), revision.Name())
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
-	res := map[string]checker.Changes{
-		"changes": changes}
+	res := map[string]checker.Changes{"changes": changes}
 	w.WriteHeader(http.StatusCreated)
-	if r.Header.Get(HeaderAccept) == HeaderAppYaml {
+	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
 		if err != nil {

@@ -15,13 +15,13 @@ import (
 
 func DiffFromUri(w http.ResponseWriter, r *http.Request) {
 
-	base := getQueryString(r, "base", "")
+	base := GetQueryString(r, "base", "")
 	if base == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	revision := getQueryString(r, "revision", "")
+	revision := GetQueryString(r, "revision", "")
 	if revision == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return

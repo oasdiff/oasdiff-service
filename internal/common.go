@@ -14,12 +14,12 @@ import (
 func CreateConfig(r *http.Request) *diff.Config {
 
 	config := diff.NewConfig()
-	config.PathFilter = getQueryString(r, "path-filter", config.PathFilter)
-	config.FilterExtension = getQueryString(r, "filter-extension", config.FilterExtension)
-	config.PathPrefixBase = getQueryString(r, "path-prefix-base", config.PathPrefixBase)
-	config.PathPrefixRevision = getQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
-	config.PathStripPrefixBase = getQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
-	config.PathStripPrefixRevision = getQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
+	config.PathFilter = GetQueryString(r, "path-filter", config.PathFilter)
+	config.FilterExtension = GetQueryString(r, "filter-extension", config.FilterExtension)
+	config.PathPrefixBase = GetQueryString(r, "path-prefix-base", config.PathPrefixBase)
+	config.PathPrefixRevision = GetQueryString(r, "path-prefix-revision", config.PathPrefixRevision)
+	config.PathStripPrefixBase = GetQueryString(r, "path-strip-prefix-base", config.PathStripPrefixBase)
+	config.PathStripPrefixRevision = GetQueryString(r, "path-strip-prefix-revision", config.PathStripPrefixRevision)
 
 	return config
 }
@@ -136,13 +136,4 @@ func copyFormData(r *http.Request, filename string, res *os.File) int {
 	}
 
 	return http.StatusOK
-}
-
-func getQueryString(r *http.Request, key string, defaultValue string) string {
-
-	if val, ok := r.URL.Query()[key]; ok {
-		return val[0]
-	}
-
-	return defaultValue
 }
