@@ -13,7 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func DiffFromUri(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 
 	base := GetQueryString(r, "base", "")
 	if base == "" {
@@ -33,6 +33,9 @@ func DiffFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	acceptHeader := GetAcceptHeader(r)
+	_ = h.SendTelemetry(r, CommandBreaking, []string{base, revision}, acceptHeader)
+
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
@@ -40,7 +43,7 @@ func DiffFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// html response
-	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
+	if acceptHeader == HeaderTextHtml {
 		html, err := report.GetHTMLReportAsString(diffReport)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -61,7 +64,7 @@ func DiffFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DiffFromFile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
 
 	dir, base, revision, code := CreateFiles(r)
 	if code != http.StatusOK {
@@ -78,6 +81,9 @@ func DiffFromFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	acceptHeader := GetAcceptHeader(r)
+	_ = h.SendTelemetry(r, CommandBreaking, []string{base.Name(), revision.Name()}, acceptHeader)
+
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
@@ -85,7 +91,7 @@ func DiffFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// html response
-	if r.Header.Get(HeaderAccept) == HeaderTextHtml {
+	if acceptHeader == HeaderTextHtml {
 		html, err := report.GetHTMLReportAsString(diffReport)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

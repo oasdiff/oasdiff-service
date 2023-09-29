@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -10,10 +11,14 @@ import (
 	"testing"
 
 	"github.com/oasdiff/oasdiff-service/internal"
+	"github.com/oasdiff/telemetry/client"
+	"github.com/oasdiff/telemetry/model"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDiffFromFile(t *testing.T) {
+
+	const headerUserAgent = "go-test"
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -36,12 +41,26 @@ func TestDiffFromFile(t *testing.T) {
 	r, err := http.NewRequest(http.MethodPost, "/diff", body)
 	require.NoError(t, err)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
+	r.Header.Set("User-Agent", headerUserAgent)
 	w := httptest.NewRecorder()
 
-	internal.DiffFromFile(w, r)
+	called := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		var events map[string][]*model.Telemetry
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&events))
+		telemetry := events[model.KeyEvents][0]
+		require.Equal(t, headerUserAgent, telemetry.Platform)
+		called = true
+	}))
+	c := client.NewDefaultCollector()
+	c.EventsUrl = server.URL
+
+	internal.NewHandler(c).DiffFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	diff, err := io.ReadAll(w.Result().Body)
 	require.NoError(t, err)
 	require.NotEmpty(t, diff)
+	require.True(t, called)
 }

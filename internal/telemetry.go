@@ -45,6 +45,10 @@ func toFlags(acceptHeader string) map[string]string {
 
 	if acceptHeader == HeaderAppYaml {
 		return map[string]string{"format": "yaml"}
+	} else if acceptHeader == HeaderAppJson {
+		return map[string]string{"format": "json"}
+	} else if acceptHeader == HeaderTextHtml {
+		return map[string]string{"format": "text"}
 	}
 
 	return map[string]string{}
