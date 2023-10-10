@@ -1,6 +1,6 @@
 module github.com/oasdiff/oasdiff-service
 
-go 1.21.1
+go 1.21.2
 
 require (
 	github.com/getkin/kin-openapi v0.120.0
@@ -10,7 +10,7 @@ require (
 	github.com/onrik/logrus v0.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
-	github.com/tufin/oasdiff v1.8.0
+	github.com/tufin/oasdiff v1.8.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
