@@ -96,12 +96,12 @@ func calcBreakingChanges(r *http.Request, base string, revision string) (checker
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
-	s1, err := load.LoadSpecInfo(loader, base)
+	s1, err := load.LoadSpecInfo(loader, load.GetSource(base))
 	if err != nil {
 		log.Infof("failed to load base spec from %q with %v", base, err)
 		return nil, http.StatusBadRequest
 	}
-	s2, err := load.LoadSpecInfo(loader, revision)
+	s2, err := load.LoadSpecInfo(loader, load.GetSource(revision))
 	if err != nil {
 		log.Infof("failed to load revision spec from %q with %v", revision, err)
 		return nil, http.StatusBadRequest
