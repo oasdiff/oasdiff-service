@@ -153,7 +153,7 @@ func createSpecFromFile(base *os.File, revision *os.File) (*openapi3.T, *openapi
 		return nil, nil, http.StatusBadRequest
 	}
 
-	s2, err := load.From(loader, load.GetSource(revision.Name()))
+	s2, err := load.From(loader, load.NewSource(revision.Name()))
 	if err != nil {
 		log.Infof("failed to load revision spec from '%s' with '%v'", revision.Name(), err)
 		return nil, nil, http.StatusBadRequest
