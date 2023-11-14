@@ -5,12 +5,12 @@ go 1.21.4
 require (
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/gorilla/mux v1.8.1
-	github.com/oasdiff/go-common v0.2.20
+	github.com/oasdiff/go-common v0.2.25
 	github.com/oasdiff/telemetry v0.1.1
 	github.com/onrik/logrus v0.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
-	github.com/tufin/oasdiff v1.9.2
+	github.com/tufin/oasdiff v1.9.4
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -42,7 +42,7 @@ require (
 	github.com/yuin/goldmark v1.6.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678 // indirect
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/oauth2 v0.14.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
