@@ -3,7 +3,7 @@ module github.com/oasdiff/oasdiff-service
 go 1.21.4
 
 require (
-	github.com/getkin/kin-openapi v0.120.0
+	github.com/getkin/kin-openapi v0.121.0
 	github.com/gorilla/mux v1.8.1
 	github.com/oasdiff/go-common v0.2.27
 	github.com/oasdiff/telemetry v0.1.1
