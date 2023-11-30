@@ -6,7 +6,7 @@ require (
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/gorilla/mux v1.8.1
 	github.com/oasdiff/go-common v0.2.28
-	github.com/oasdiff/telemetry v0.1.1
+	github.com/oasdiff/telemetry v0.1.2
 	github.com/onrik/logrus v0.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
