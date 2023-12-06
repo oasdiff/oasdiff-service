@@ -113,8 +113,5 @@ func calcChangelog(r *http.Request, base string, revision string) (checker.Chang
 		return nil, http.StatusInternalServerError
 	}
 
-	c := checker.GetChecks([]string{})
-	c.Localize = checker.NewLocalizer(getLocal(r))
-
-	return checker.CheckBackwardCompatibilityUntilLevel(c, diffReport, operationsSources, checker.INFO), http.StatusOK
+	return checker.CheckBackwardCompatibilityUntilLevel(checker.GetChecks([]string{}), diffReport, operationsSources, checker.INFO), http.StatusOK
 }
