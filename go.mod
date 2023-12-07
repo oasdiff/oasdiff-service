@@ -1,7 +1,6 @@
 module github.com/oasdiff/oasdiff-service
 
 go 1.21.4
-
 require (
 	github.com/getkin/kin-openapi v0.122.0
 	github.com/gorilla/mux v1.8.1
@@ -10,7 +9,7 @@ require (
 	github.com/onrik/logrus v0.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
-	github.com/tufin/oasdiff v1.10.1
+	github.com/tufin/oasdiff v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -47,7 +46,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
-	golang.org/x/exp v0.0.0-20231127185646-65229373498e // indirect
+	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
