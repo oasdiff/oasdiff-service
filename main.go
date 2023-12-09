@@ -47,8 +47,8 @@ func main() {
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 		},
 		[]func(http.ResponseWriter, *http.Request){
-			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "docs/docs.html") },
-			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "docs/openapi.yaml") },
+			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "/app/docs/docs.html") },
+			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "/app/docs/openapi.yaml") },
 			access(h.DiffFromFile), access(h.DiffFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(h.BreakingChangesFromFile), access(h.BreakingChangesFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(h.ChangelogFromFile), access(h.ChangelogFromUri), options([]string{http.MethodPost, http.MethodGet}),
