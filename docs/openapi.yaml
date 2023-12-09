@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: oasdiff Service
-  version: 0.0.1
+  title: oasdiff
+  version: v0.0.1
 servers:
   - url: https://api.oasdiff.com
 paths:
