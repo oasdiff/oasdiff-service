@@ -27,7 +27,7 @@ func main() {
 		breakingChanges = fmt.Sprintf("/tenants/{%s}/breaking-changes", tenant.PathParamTenantId)
 		changelog       = fmt.Sprintf("/tenants/{%s}/changelog", tenant.PathParamTenantId)
 
-		v = tenant.NewValidator(ds.NewClientAuth(env.GetGCPProject(), env.GetGCPDatastoreNamespace()))
+		v = tenant.NewValidator(ds.NewClient(env.GetGCPProject(), env.GetGCPDatastoreNamespace()))
 		h = internal.NewHandler(client.NewDefaultCollector())
 	)
 
@@ -87,7 +87,6 @@ func serve(path []string, method []string,
 	for i := 0; i < len(path); i++ {
 		router.HandleFunc(path[i], handle[i]).Methods(method[i])
 	}
-
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%s", "0.0.0.0", "8080"),
 		// avoid slowloris attacks
