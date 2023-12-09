@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  title: oasdiff Service
+  version: 0.0.1
+servers:
+  - url: https://api.oasdiff.com
+paths:
+  /tenants/{tenantId}/diff:
+    post:
+      summary: Generate API Diff
+      operationId: generateApiDiff
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                base:
+                  type: string
+                  format: binary
+                revision:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Successful diff
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangesResponse'
+        '400':
+          description: Bad Request
+  /tenants/{tenantId}/breaking-changes:
+    post:
+      summary: Generate Breaking Changes
+      operationId: generateBreakingChanges
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BreakingChangesRequest'
+      responses:
+        '201':
+          description: Successful breaking changes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangesResponse'
+        '400':
+          description: Bad Request
+  /tenants/{tenantId}/changelog:
+    post:
+      summary: Generate Changelog
+      operationId: generateChangelog
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                base:
+                  type: string
+                  format: binary
+                revision:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Successful changelog
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangesResponse'
+        '400':
+          description: Bad Request
+components:
+  schemas:
+    ApiChange:
+      type: object
+      properties:
+        id:
+          type: string
+        args:
+          type: array
+          items: {}
+        comment:
+          type: string
+        level:
+          $ref: '#/components/schemas/Level'
+        operation:
+          type: string
+        operationId:
+          type: string
+        path:
+          type: string
+        source:
+          type: string
+        sourceFile:
+          type: string
+        sourceLine:
+          type: integer
+        sourceLineEnd:
+          type: integer
+        sourceColumn:
+          type: integer
+        sourceColumnEnd:
+          type: integer
+      required:
+        - level
+    BreakingChangesRequest:
+      type: object
+      properties:
+        base:
+          type: string
+          format: binary
+        revision:
+          type: string
+          format: binary
+    ChangesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ApiChange'
+    Level:
+      type: string
+      enum:
+        - ERR
+        - WARN
+        - INFO

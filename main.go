@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"os/signal"
 	"runtime"
 	"strings"
 	"time"
@@ -35,16 +33,22 @@ func main() {
 
 	serve(
 		[]string{
+			fmt.Sprintf("/tenants/{%s}/docs.html", tenant.PathParamTenantId),
+			fmt.Sprintf("/tenants/{%s}/openapi.yaml", tenant.PathParamTenantId),
 			diff, diff, diff,
 			breakingChanges, breakingChanges, breakingChanges,
 			changelog, changelog, changelog,
 		},
 		[]string{
+			http.MethodGet,
+			http.MethodGet,
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 		},
 		[]func(http.ResponseWriter, *http.Request){
+			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "/app/docs/docs.html") },
+			func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "/app/docs/openapi.yaml") },
 			access(h.DiffFromFile), access(h.DiffFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(h.BreakingChangesFromFile), access(h.BreakingChangesFromUri), options([]string{http.MethodPost, http.MethodGet}),
 			access(h.ChangelogFromFile), access(h.ChangelogFromUri), options([]string{http.MethodPost, http.MethodGet}),
@@ -75,57 +79,25 @@ func options(methods []string) func(http.ResponseWriter, *http.Request) {
 func serve(path []string, method []string,
 	handle []func(http.ResponseWriter, *http.Request), mwf ...mux.MiddlewareFunc) {
 
+	initLogger()
+	logVersion()
+
 	router := mux.NewRouter()
 	router.Use(mwf...)
 	for i := 0; i < len(path); i++ {
 		router.HandleFunc(path[i], handle[i]).Methods(method[i])
 	}
-
-	serveMulti([]*mux.Router{router}, []string{"8080"})
-}
-
-func serveMulti(routers []*mux.Router, ports []string) {
-
-	initLogger()
-	logVersion()
-
-	var servers []*http.Server
-	for i := 0; i < len(ports); i++ {
-		servers = append(servers, &http.Server{
-			Addr: fmt.Sprintf("%s:%s", "0.0.0.0", ports[i]),
-			// Good practice to set timeouts to avoid Slowloris attacks.
-			WriteTimeout: time.Second * 15,
-			ReadTimeout:  time.Second * 15,
-			IdleTimeout:  time.Second * 60,
-			Handler:      routers[i],
-		})
-		go func(server *http.Server, port string) {
-			log.Infof("listening on port %q", port)
-			if err := server.ListenAndServe(); err != nil {
-				log.Error(err)
-			}
-		}(servers[i], ports[i])
+	server := &http.Server{
+		Addr: fmt.Sprintf("%s:%s", "0.0.0.0", "8080"),
+		// avoid slowloris attacks
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      router,
 	}
-	c := make(chan os.Signal, 1)
-	// Graceful shutdowns when quit via SIGINT (Ctrl+C)
-	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
-	signal.Notify(c, os.Interrupt)
-	<-c
-
-	for _, currServer := range servers {
-		shutdown(currServer)
-	}
-
-	log.Info("exit")
-	os.Exit(0)
-}
-
-func shutdown(server *http.Server) {
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Errorf("failed to shutdown server with %q", err)
+	if err := server.ListenAndServe(); err != nil {
+		log.Error(err)
+		os.Exit(0)
 	}
 }
 
