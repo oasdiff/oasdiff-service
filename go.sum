@@ -127,6 +127,8 @@ github.com/tufin/oasdiff v1.9.8 h1:7rKqQRuw5Gh3wKWPxa0AJTV1IwJCG8MPKAiuk/FYNO4=
 github.com/tufin/oasdiff v1.9.8/go.mod h1:XaFGr3J34576n9AXJw9Svt4Yr2ATGLIs2dszRNBIBM8=
 github.com/tufin/oasdiff v1.10.1 h1:Hg319ewBJf2ktf4OKbpQuJlV1Mv2vutmgEg/t0ZKTWc=
 github.com/tufin/oasdiff v1.10.1/go.mod h1:LzsyXgenZRoAsj0K5WhDJoUFYLR3kKFlyjeaR3Arjxw=
+github.com/tufin/oasdiff v1.10.2 h1:/hGQFiJNLx6sxNWnh9h6o0gZSslor0sZpWzzuE5F4Vs=
+github.com/tufin/oasdiff v1.10.2/go.mod h1:XiH50kY2HSbbCdI5KqpTBFdm5M1Q95s0s88DzPHJwJY=
 github.com/ugorji/go/codec v1.2.11 h1:BMaWp1Bb6fHwEtbplGBGJ498wD+LKlNSl25MjdZY4dU=
 github.com/ugorji/go/codec v1.2.11/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
 github.com/yargevad/filepathx v1.0.0 h1:SYcT+N3tYGi+NvazubCNlvgIPbzAk7i7y2dwg3I5FYc=
@@ -152,6 +154,8 @@ golang.org/x/crypto v0.16.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20231127185646-65229373498e h1:Gvh4YaCaXNs6dKTlfgismwWZKyjVZXwOPfIyUaqU3No=
 golang.org/x/exp v0.0.0-20231127185646-65229373498e/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
+golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb h1:c0vyKkb6yr3KR7jEfJaOSv4lG7xPkbN6r52aJz1d8a8=
+golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
 golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3/go.mod h1:6SW0HCj/g11FgYtHlgUYUwCkIfeOF89ocIRzGO/8vkc=
