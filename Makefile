@@ -8,3 +8,8 @@ devtools:  ## Install dev tools
 .PHONY: lint
 lint: ## Run linter
 	golangci-lint run
+
+.PHONY: docs
+docs: ## Generate docs
+	docker run -v $(PWD):/spec redocly/cli build-docs docs/openapi.yaml
+	mv redoc-static.html docs.html
