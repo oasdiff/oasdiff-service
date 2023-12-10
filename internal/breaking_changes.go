@@ -38,6 +38,7 @@ func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request)
 
 	res := map[string]checker.Changes{"breaking-changes": changes}
 	w.WriteHeader(http.StatusCreated)
+
 	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
@@ -46,6 +47,7 @@ func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request)
 		}
 		return
 	}
+
 	w.Header().Set(HeaderContentType, HeaderAppJson)
 	err := json.NewEncoder(w).Encode(res)
 	if err != nil {
@@ -115,14 +117,4 @@ func calcBreakingChanges(r *http.Request, base string, revision string) (checker
 	}
 
 	return checker.CheckBackwardCompatibility(checker.GetDefaultChecks(), diffReport, operationsSources), http.StatusOK
-}
-
-func getLocal(r *http.Request) string {
-
-	local := r.URL.Query()["local"]
-	if local != nil && local[0] != "" {
-		return local[0]
-	}
-
-	return "en"
 }
