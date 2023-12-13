@@ -36,20 +36,35 @@ func (h *Handler) ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string]checker.Changes{"changelog": changes}
 	w.WriteHeader(http.StatusCreated)
+
+	if acceptHeader == "github-action" {
+		w.Header().Set(HeaderContentType, HeaderAppJson)
+		res, err := GetGitHubActionResponse(changes)
+		if err != nil {
+			return
+		}
+		err = json.NewEncoder(w).Encode(res)
+		if err != nil {
+			log.Errorf("failed to json encode 'github-action' response with '%v'", err)
+		}
+		return
+	}
+
+	res := map[string]checker.Changes{"changelog": changes}
 	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
 		err := yaml.NewEncoder(w).Encode(res)
 		if err != nil {
-			log.Errorf("failed to yaml encode 'changelog' report with '%v'", err)
+			log.Errorf("failed to yaml encode 'changelog' response with '%v'", err)
 		}
 		return
 	}
+
 	w.Header().Set(HeaderContentType, HeaderAppJson)
 	err := json.NewEncoder(w).Encode(res)
 	if err != nil {
-		log.Errorf("failed to json encode 'changelog' report with '%v'", err)
+		log.Errorf("failed to json encode 'changelog' response with '%v'", err)
 	}
 }
 
