@@ -37,7 +37,7 @@ func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res := map[string]checker.Changes{"breaking-changes": changes}
+	res := map[string]checker.Changes{"changes": changes}
 	w.WriteHeader(http.StatusCreated)
 
 	if acceptHeader == HeaderAppYaml {
@@ -76,7 +76,7 @@ func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	res := map[string]formatters.Changes{"breaking-changes": formatters.NewChanges(changes, checker.NewDefaultLocalizer())}
+	res := map[string]formatters.Changes{"changes": formatters.NewChanges(changes, checker.NewDefaultLocalizer())}
 	w.WriteHeader(http.StatusCreated)
 	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)

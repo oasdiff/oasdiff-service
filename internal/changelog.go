@@ -91,13 +91,6 @@ func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getFormat(acceptHeader string) string {
-	if acceptHeader == HeaderAppYaml {
-		return "yaml"
-	}
-	return "json"
-}
-
 func calcChangelog(r *http.Request, base string, revision string) (checker.Changes, int) {
 
 	loader := openapi3.NewLoader()

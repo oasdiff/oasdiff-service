@@ -63,6 +63,6 @@ func TestBreakingChanges(t *testing.T) {
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report map[string][]formatters.Change
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
-	require.True(t, len(report["breaking-changes"]) > 0)
+ 	require.True(t, len(report["changes"]) > 0)
 	require.True(t, called)
 }
