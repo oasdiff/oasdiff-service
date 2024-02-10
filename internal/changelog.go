@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/tufin/oasdiff/checker"
 	"github.com/tufin/oasdiff/diff"
+	"github.com/tufin/oasdiff/formatters"
 	"github.com/tufin/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
@@ -73,7 +74,7 @@ func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := map[string]checker.Changes{"changes": changes}
+	res := map[string]formatters.Changes{"changes": formatters.NewChanges(changes, checker.NewDefaultLocalizer())}
 	w.WriteHeader(http.StatusCreated)
 	if acceptHeader == HeaderAppYaml {
 		w.Header().Set(HeaderContentType, HeaderAppYaml)
@@ -90,17 +91,24 @@ func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getFormat(acceptHeader string) string {
+	if acceptHeader == HeaderAppYaml {
+		return "yaml"
+	}
+	return "json"
+}
+
 func calcChangelog(r *http.Request, base string, revision string) (checker.Changes, int) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
-	s1, err := load.LoadSpecInfo(loader, load.NewSource(base))
+	s1, err := load.NewSpecInfo(loader, load.NewSource(base))
 	if err != nil {
 		log.Infof("failed to load base spec from %q with %v", base, err)
 		return nil, http.StatusBadRequest
 	}
-	s2, err := load.LoadSpecInfo(loader, load.NewSource(revision))
+	s2, err := load.NewSpecInfo(loader, load.NewSource(revision))
 	if err != nil {
 		log.Infof("failed to load revision spec from %q with %v", revision, err)
 		return nil, http.StatusBadRequest

@@ -14,7 +14,7 @@ import (
 	"github.com/oasdiff/telemetry/client"
 	"github.com/oasdiff/telemetry/model"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/checker"
+	"github.com/tufin/oasdiff/formatters"
 	"gopkg.in/yaml.v3"
 )
 
@@ -61,7 +61,7 @@ func TestChangelog(t *testing.T) {
 	internal.NewHandler(c).ChangelogFromFile(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
-	var report map[string][]checker.ApiChange
+	var report map[string][]formatters.Change
 	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
 	require.True(t, len(report["changes"]) > 0)
 	require.True(t, called)
