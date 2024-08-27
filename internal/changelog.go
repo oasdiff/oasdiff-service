@@ -108,11 +108,11 @@ func calcChangelog(r *http.Request, base string, revision string) (checker.Chang
 	}
 
 	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
-		CreateConfig(r).WithCheckBreaking(), s1, s2)
+		CreateConfig(r), s1, s2)
 	if err != nil {
 		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
 		return nil, http.StatusInternalServerError
 	}
 
-	return checker.CheckBackwardCompatibilityUntilLevel(checker.GetChecks([]string{}), diffReport, operationsSources, checker.INFO), http.StatusOK
+	return checker.CheckBackwardCompatibilityUntilLevel(checker.NewConfig(checker.GetAllChecks()), diffReport, operationsSources, checker.INFO), http.StatusOK
 }

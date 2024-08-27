@@ -110,11 +110,11 @@ func calcBreakingChanges(r *http.Request, base string, revision string) (checker
 	}
 
 	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
-		CreateConfig(r).WithCheckBreaking(), s1, s2)
+		CreateConfig(r), s1, s2)
 	if err != nil {
 		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
 		return nil, http.StatusInternalServerError
 	}
 
-	return checker.CheckBackwardCompatibility(checker.GetDefaultChecks(), diffReport, operationsSources), http.StatusOK
+	return checker.CheckBackwardCompatibility(checker.NewConfig(checker.GetAllChecks()), diffReport, operationsSources), http.StatusOK
 }
