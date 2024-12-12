@@ -14,7 +14,7 @@ import (
 func CreateConfig(r *http.Request) *diff.Config {
 
 	config := diff.NewConfig()
-	config.PathFilter = GetQueryString(r, "path-filter", config.PathFilter)
+	config.MatchPath = GetQueryString(r, "path-filter", config.MatchPath)
 	config.FilterExtension = GetQueryString(r, "filter-extension", config.FilterExtension)
 	config.PathPrefixBase = GetQueryString(r, "path-prefix-base", config.PathPrefixBase)
 	config.PathPrefixRevision = GetQueryString(r, "path-prefix-revision", config.PathPrefixRevision)

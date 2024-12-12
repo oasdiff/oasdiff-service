@@ -19,7 +19,7 @@ func TestCreateConfig_PathFilter(t *testing.T) {
 
 	config := internal.CreateConfig(r)
 
-	require.Equal(t, expected, config.PathFilter)
+	require.Equal(t, expected, config.MatchPath)
 }
 
 func createMockRequest(t *testing.T) *http.Request {
