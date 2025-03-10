@@ -14,7 +14,7 @@ import (
 	"github.com/oasdiff/telemetry/client"
 	"github.com/oasdiff/telemetry/model"
 	"github.com/stretchr/testify/require"
-	"github.com/tufin/oasdiff/formatters"
+	"github.com/oasdiff/oasdiff/formatters"
 	"gopkg.in/yaml.v3"
 )
 

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/tufin/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/diff"
 )
 
 func CreateConfig(r *http.Request) *diff.Config {

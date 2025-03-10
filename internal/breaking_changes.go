@@ -7,10 +7,10 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
-	"github.com/tufin/oasdiff/checker"
-	"github.com/tufin/oasdiff/diff"
-	"github.com/tufin/oasdiff/formatters"
-	"github.com/tufin/oasdiff/load"
+	"github.com/oasdiff/oasdiff/checker"
+	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/formatters"
+	"github.com/oasdiff/oasdiff/load"
 	"gopkg.in/yaml.v3"
 )
 
