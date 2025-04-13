@@ -6,11 +6,11 @@ import (
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	log "github.com/sirupsen/logrus"
 	"github.com/oasdiff/oasdiff/checker"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/oasdiff/oasdiff/load"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,7 +29,6 @@ func (h *Handler) ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 
 	acceptHeader := GetAcceptHeader(r)
-	_ = h.SendTelemetry(r, CommandChangelog, []string{base, revision}, acceptHeader)
 
 	changes, code := calcChangelog(r, base, revision)
 	if code != http.StatusOK {
@@ -66,7 +65,6 @@ func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 	defer os.RemoveAll(dir)
 
 	acceptHeader := GetAcceptHeader(r)
-	_ = h.SendTelemetry(r, CommandChangelog, []string{base.Name(), revision.Name()}, acceptHeader)
 
 	changes, code := calcChangelog(r, base.Name(), revision.Name())
 	if code != http.StatusOK {

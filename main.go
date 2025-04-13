@@ -14,7 +14,6 @@ import (
 	"github.com/oasdiff/go-common/env"
 	"github.com/oasdiff/go-common/tenant"
 	"github.com/oasdiff/oasdiff-service/internal"
-	"github.com/oasdiff/telemetry/client"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/writer"
@@ -28,7 +27,7 @@ func main() {
 		changelog       = fmt.Sprintf("/tenants/{%s}/changelog", tenant.PathParamTenantId)
 
 		v = tenant.NewValidator(ds.NewClient(env.GetGCPProject(), env.GetGCPDatastoreNamespace()))
-		h = internal.NewHandler(client.NewDefaultCollector())
+		h = internal.NewHandler()
 	)
 
 	serve(

@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	log "github.com/sirupsen/logrus"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/oasdiff/oasdiff/report"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -34,7 +34,6 @@ func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 
 	acceptHeader := GetAcceptHeader(r)
-	_ = h.SendTelemetry(r, CommandBreaking, []string{base, revision}, acceptHeader)
 
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
@@ -82,7 +81,6 @@ func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	acceptHeader := GetAcceptHeader(r)
-	_ = h.SendTelemetry(r, CommandBreaking, []string{base.Name(), revision.Name()}, acceptHeader)
 
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
