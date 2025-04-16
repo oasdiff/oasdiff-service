@@ -7,7 +7,9 @@ import (
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/oasdiff/oasdiff/checker"
 	"github.com/oasdiff/oasdiff/diff"
+	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/oasdiff/oasdiff/report"
 	log "github.com/sirupsen/logrus"
@@ -34,33 +36,70 @@ func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	acceptHeader := GetAcceptHeader(r)
-
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
-	// html response
-	if acceptHeader == HeaderTextHtml {
-		html, err := report.GetHTMLReportAsString(diffReport)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Errorf("failed to generate HTML diff report with '%v'", err)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		_, _ = w.Write([]byte(html))
+	contentType := getContentType(GetAcceptHeader(r))
+
+	out, err := getDiffOutput(diffReport, contentType)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// json response
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set(HeaderContentType, HeaderAppYaml)
-	err := yaml.NewEncoder(w).Encode(diffReport)
-	if err != nil {
-		log.Errorf("failed to encode 'diff' report '%s' with '%v'", baseSpec.Info.Title, err)
+	w.Header().Set(HeaderContentType, contentType)
+	_, _ = w.Write(out)
+}
+
+func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
+	switch contentType {
+	case HeaderAppYaml:
+		out, err := formatters.YAMLFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderDiff(diffReport, formatters.NewRenderOpts())
+		if err != nil {
+			return nil, fmt.Errorf("failed to yaml encode diff with '%v'", err)
+		}
+		return out, nil
+	case HeaderAppJson:
+		out, err := formatters.JSONFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderDiff(diffReport, formatters.NewRenderOpts())
+		if err != nil {
+			return nil, fmt.Errorf("failed to json encode diff with '%v'", err)
+		}
+		return out, nil
+	case HeaderTextHtml:
+		out, err := formatters.HTMLFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderDiff(diffReport, formatters.NewRenderOpts())
+		if err != nil {
+			return nil, fmt.Errorf("failed to html encode diff with '%v'", err)
+		}
+		return out, nil
+	case HeaderTextPlain:
+		out, err := formatters.TEXTFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderDiff(diffReport, formatters.NewRenderOpts())
+		if err != nil {
+			return nil, fmt.Errorf("failed to text encode diff with '%v'", err)
+		}
+		return out, nil
+	case HeaderTextMarkdown:
+		out, err := formatters.MarkupFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderDiff(diffReport, formatters.NewRenderOpts())
+		if err != nil {
+			return nil, fmt.Errorf("failed to markdown encode diff with '%v'", err)
+		}
+		return out, nil
+	default:
+		return nil, fmt.Errorf("unsupported content type '%v'", contentType)
 	}
 }
 
