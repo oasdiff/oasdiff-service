@@ -110,6 +110,14 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 			return nil, fmt.Errorf("failed to text encode 'breaking-changes' report with '%v'", err)
 		}
 		return out, nil
+	case HeaderTextMarkdown:
+		out, err := formatters.MarkupFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to markdown encode 'breaking-changes' report with '%v'", err)
+		}
+		return out, nil
 	default:
 		return nil, fmt.Errorf("unsupported content type '%v'", contentType)
 	}

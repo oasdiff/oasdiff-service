@@ -68,6 +68,13 @@ curl -X POST -H "Accept: text/plain" \
     https://api.oasdiff.com/tenants/{tenant-id}/breaking-changes
 ```
 
+Or as markdown:
+```
+curl -X POST -H "Accept: text/markdown" \
+    -F base=@data/openapi-test1.yaml \
+    -F revision=@data/openapi-test3.yaml \
+    https://api.oasdiff.com/tenants/{tenant-id}/breaking-changes
+```
 
 ### Errors
 oasdiff-service uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the 2xx range indicate success. Codes in the 4xx range indicate a failure with additional information provided (e.g., invalid OpenAPI spec format, a required parameter was missing, etc.). Codes in the 5xx range indicate an error with oasdiff-service servers (these are rare)

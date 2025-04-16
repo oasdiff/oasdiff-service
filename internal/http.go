@@ -9,6 +9,7 @@ const (
 	HeaderAppJson           = "application/json"
 	HeaderTextHtml          = "text/html"
 	HeaderTextPlain         = "text/plain"
+	HeaderTextMarkdown      = "text/markdown"
 	HeaderMultipartFormData = "multipart/form-data"
 	HeaderAppFormUrlEncoded = "application/x-www-form-urlencoded"
 )
