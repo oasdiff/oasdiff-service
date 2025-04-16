@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/oasdiff/oasdiff/diff"
+	log "github.com/sirupsen/logrus"
 )
 
 func CreateConfig(r *http.Request) *diff.Config {
@@ -24,58 +24,54 @@ func CreateConfig(r *http.Request) *diff.Config {
 	return config
 }
 
-func CreateFiles(r *http.Request) (string, *os.File, *os.File, int) {
+func CreateFiles(r *http.Request) (string, *os.File, *os.File, error) {
 
 	// create a temporary directory
 	dir, err := os.MkdirTemp("", "tmp")
 	if err != nil {
-		log.Errorf("failed to make temp dir with %v", err)
-		return "", nil, nil, http.StatusInternalServerError
+		return "", nil, nil, fmt.Errorf("failed to make temp dir with %v", err)
 	}
 
 	// create temporary files for base and revision
-	base, code := createFile(dir, "base")
-	if code != http.StatusOK {
+	base, err := createFile(dir, "base")
+	if err != nil {
 		os.RemoveAll(dir)
-		return "", nil, nil, code
+		return "", nil, nil, err
 	}
-	revision, code := createFile(dir, "revision")
-	if code != http.StatusOK {
+	revision, err := createFile(dir, "revision")
+	if err != nil {
 		os.RemoveAll(dir)
 		CloseFile(base)
-		return "", nil, nil, code
+		return "", nil, nil, err
 	}
 
 	contentType := r.Header.Get(HeaderContentType)
 	if strings.HasPrefix(contentType, HeaderMultipartFormData) {
 		// 32 MB is the default used by FormFile() function
 		if err := r.ParseMultipartForm(4); err != nil {
-			log.Infof("failed to parse '%s' request files with '%v'", HeaderMultipartFormData, err)
-			return "", nil, nil, http.StatusBadRequest
+			return "", nil, nil, fmt.Errorf("failed to parse '%s' request files with '%v'", HeaderMultipartFormData, err)
 		}
-		if code := copyMultipartFormData(r, "base", base); code != http.StatusOK {
-			return "", nil, nil, code
+		if err := copyMultipartFormData(r, "base", base); err != nil {
+			return "", nil, nil, err
 		}
-		if code := copyMultipartFormData(r, "revision", revision); code != http.StatusOK {
-			return "", nil, nil, code
+		if err := copyMultipartFormData(r, "revision", revision); err != nil {
+			return "", nil, nil, err
 		}
 	} else if contentType == HeaderAppFormUrlEncoded {
 		if err := r.ParseForm(); err != nil {
-			log.Infof("failed to parse '%s' request with '%v'", HeaderAppFormUrlEncoded, err)
-			return "", nil, nil, http.StatusBadRequest
+			return "", nil, nil, fmt.Errorf("failed to parse '%s' request with '%v'", HeaderAppFormUrlEncoded, err)
 		}
-		if code := copyFormData(r, "base", base); code != http.StatusOK {
-			return "", nil, nil, code
+		if err := copyFormData(r, "base", base); err != nil {
+			return "", nil, nil, err
 		}
-		if code := copyFormData(r, "revision", revision); code != http.StatusOK {
-			return "", nil, nil, code
+		if err := copyFormData(r, "revision", revision); err != nil {
+			return "", nil, nil, err
 		}
 	} else {
-		log.Infof("unsupported content type '%s'", contentType)
-		return "", nil, nil, http.StatusBadRequest
+		return "", nil, nil, fmt.Errorf("unsupported content type '%s'", contentType)
 	}
 
-	return dir, base, revision, http.StatusOK
+	return dir, base, revision, nil
 }
 
 func CloseFile(f *os.File) {
@@ -86,19 +82,18 @@ func CloseFile(f *os.File) {
 	}
 }
 
-func createFile(dir string, filename string) (*os.File, int) {
+func createFile(dir string, filename string) (*os.File, error) {
 
 	f := fmt.Sprintf("%s/%s", dir, filename)
 	res, err := os.Create(f)
 	if err != nil {
-		log.Errorf("failed to create file '%s' with '%v'", f, err)
-		return nil, http.StatusInternalServerError
+		return nil, fmt.Errorf("failed to create file '%s' with '%v'", f, err)
 	}
 
-	return res, http.StatusOK
+	return res, nil
 }
 
-func copyMultipartFormData(r *http.Request, filename string, res *os.File) int {
+func copyMultipartFormData(r *http.Request, filename string, res *os.File) error {
 
 	// a reference to the fileHeaders are accessible only after ParseMultipartForm is called
 	files := r.MultipartForm.File[filename]
@@ -106,34 +101,30 @@ func copyMultipartFormData(r *http.Request, filename string, res *os.File) int {
 		// Open the file
 		file, err := fileHeader.Open()
 		if err != nil {
-			log.Errorf("failed to create temp file with %v", err)
-			return http.StatusInternalServerError
+			return fmt.Errorf("failed to create temp file with %v", err)
 		}
 		defer file.Close()
 
 		_, err = io.Copy(res, file)
 		if err != nil {
-			log.Errorf("failed to copy file %q from HTTP request with %v", fileHeader.Filename, err)
-			return http.StatusInternalServerError
+			return fmt.Errorf("failed to copy file %q from HTTP request with %v", fileHeader.Filename, err)
 		}
 	}
 
-	return http.StatusOK
+	return nil
 }
 
-func copyFormData(r *http.Request, filename string, res *os.File) int {
+func copyFormData(r *http.Request, filename string, res *os.File) error {
 
 	data := r.FormValue(filename)
 	if data == "" {
-		log.Infof("bad request: empty spec '%s'", filename)
-		return http.StatusBadRequest
+		return fmt.Errorf("bad request: empty spec '%s'", filename)
 	}
 
 	_, err := io.Copy(res, strings.NewReader(data))
 	if err != nil {
-		log.Errorf("failed to copy form value '%s' from HTTP request with %v", filename, err)
-		return http.StatusInternalServerError
+		return fmt.Errorf("failed to copy form value '%s' from HTTP request with %v", filename, err)
 	}
 
-	return http.StatusOK
+	return nil
 }
