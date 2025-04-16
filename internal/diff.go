@@ -11,9 +11,7 @@ import (
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/oasdiff/oasdiff/load"
-	"github.com/oasdiff/oasdiff/report"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 )
 
 func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
@@ -36,13 +34,52 @@ func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
+	contentType := getContentType(GetAcceptHeader(r))
+
+	diffReport, code := createDiffReport(r, baseSpec, revisionSpec, contentType)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
 
+	out, err := getDiffOutput(diffReport, contentType)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set(HeaderContentType, contentType)
+	_, _ = w.Write(out)
+}
+
+func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
+
+	dir, base, revision, err := CreateFiles(r)
+	if err != nil {
+		log.Errorf("failed to create files with %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer CloseFile(base)
+	defer CloseFile(revision)
+	defer os.RemoveAll(dir)
+
+	baseSpec, revisionSpec, err := createSpecFromFile(base, revision)
+	if err != nil {
+		log.Errorf("failed to create spec from files with %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	contentType := getContentType(GetAcceptHeader(r))
+
+	diffReport, code := createDiffReport(r, baseSpec, revisionSpec, contentType)
+	if code != http.StatusOK {
+		w.WriteHeader(code)
+		return
+	}
 
 	out, err := getDiffOutput(diffReport, contentType)
 	if err != nil {
@@ -103,54 +140,6 @@ func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
 	}
 }
 
-func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
-
-	dir, base, revision, err := CreateFiles(r)
-	if err != nil {
-		log.Errorf("failed to create files with %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer CloseFile(base)
-	defer CloseFile(revision)
-	defer os.RemoveAll(dir)
-
-	baseSpec, revisionSpec, err := createSpecFromFile(base, revision)
-	if err != nil {
-		log.Errorf("failed to create spec from files with %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	acceptHeader := GetAcceptHeader(r)
-
-	diffReport, code := createDiffReport(r, baseSpec, revisionSpec)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
-	}
-
-	// html response
-	if acceptHeader == HeaderTextHtml {
-		html, err := report.GetHTMLReportAsString(diffReport)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Errorf("failed to generate HTML diff report with '%v'", err)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		_, _ = w.Write([]byte(html))
-		return
-	}
-
-	// json response
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set(HeaderContentType, HeaderAppYaml)
-	if err := yaml.NewEncoder(w).Encode(diffReport); err != nil {
-		log.Errorf("failed to encode 'diff' report '%s' with '%v'", baseSpec.Info.Title, err)
-	}
-}
-
 func createSpecFromUri(base string, revision string) (*openapi3.T, *openapi3.T, int) {
 
 	loader := openapi3.NewLoader()
@@ -200,9 +189,14 @@ func createSpecFromFile(base *os.File, revision *os.File) (*openapi3.T, *openapi
 	return s1.Spec, s2.Spec, nil
 }
 
-func createDiffReport(r *http.Request, s1 *openapi3.T, s2 *openapi3.T) (*diff.Diff, int) {
+func createDiffReport(r *http.Request, s1 *openapi3.T, s2 *openapi3.T, contentType string) (*diff.Diff, int) {
 
 	config := CreateConfig(r)
+
+	// exclude endpoints in json output
+	if contentType == HeaderAppJson {
+		config.ExcludeElements.Add(diff.ExcludeEndpointsOption)
+	}
 
 	diffReport, err := diff.Get(config, s1, s2)
 	if err != nil {
