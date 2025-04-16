@@ -70,7 +70,7 @@ func getChangelog(w http.ResponseWriter, r *http.Request, base string, revision 
 }
 
 func getContentType(acceptHeader string) string {
-	if acceptHeader == "" {
+	if acceptHeader == "" || acceptHeader == "*/*" {
 		return HeaderAppJson
 	}
 	return acceptHeader
