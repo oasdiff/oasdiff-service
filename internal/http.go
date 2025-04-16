@@ -8,6 +8,7 @@ const (
 	HeaderAppYaml           = "application/yaml"
 	HeaderAppJson           = "application/json"
 	HeaderTextHtml          = "text/html"
+	HeaderTextPlain         = "text/plain"
 	HeaderMultipartFormData = "multipart/form-data"
 	HeaderAppFormUrlEncoded = "application/x-www-form-urlencoded"
 )

@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 	"github.com/oasdiff/oasdiff-service/internal"
 	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v3"
 )
 
 func TestChangelog(t *testing.T) {
@@ -47,6 +47,6 @@ func TestChangelog(t *testing.T) {
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 	var report map[string][]formatters.Change
-	require.NoError(t, yaml.NewDecoder(w.Result().Body).Decode(&report))
+	require.NoError(t, json.NewDecoder(w.Result().Body).Decode(&report))
 	require.True(t, len(report["changes"]) > 0)
 }

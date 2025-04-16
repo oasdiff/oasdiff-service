@@ -1,118 +1,45 @@
 package internal
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/checker"
-	"github.com/oasdiff/oasdiff/diff"
-	"github.com/oasdiff/oasdiff/formatters"
-	"github.com/oasdiff/oasdiff/load"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 )
+
+const BREAKING_LEVEL = checker.WARN
 
 func (h *Handler) BreakingChangesFromUri(w http.ResponseWriter, r *http.Request) {
 
 	base := GetQueryString(r, "base", "")
 	if base == "" {
+		log.Error("no base url provided")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	revision := GetQueryString(r, "revision", "")
 	if revision == "" {
+		log.Error("no revision url provided")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	acceptHeader := GetAcceptHeader(r)
-
-	changes, code := calcBreakingChanges(r, base, revision)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
-	}
-
-	res := map[string]checker.Changes{"changes": changes}
-	w.WriteHeader(http.StatusCreated)
-
-	if acceptHeader == HeaderAppYaml {
-		w.Header().Set(HeaderContentType, HeaderAppYaml)
-		err := yaml.NewEncoder(w).Encode(res)
-		if err != nil {
-			log.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
-		}
-		return
-	}
-
-	w.Header().Set(HeaderContentType, HeaderAppJson)
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		log.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
-	}
+	getChangelog(w, r, base, revision, BREAKING_LEVEL)
 }
 
 func (h *Handler) BreakingChangesFromFile(w http.ResponseWriter, r *http.Request) {
 
-	dir, base, revision, code := CreateFiles(r)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
+	dir, base, revision, err := CreateFiles(r)
+	if err != nil {
+		log.Errorf("failed to create files with %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer CloseFile(base)
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	acceptHeader := GetAcceptHeader(r)
-
-	changes, code := calcBreakingChanges(r, base.Name(), revision.Name())
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
-	}
-
-	res := map[string]formatters.Changes{"changes": formatters.NewChanges(changes, checker.NewDefaultLocalizer())}
-	w.WriteHeader(http.StatusCreated)
-	if acceptHeader == HeaderAppYaml {
-		w.Header().Set(HeaderContentType, HeaderAppYaml)
-		err := yaml.NewEncoder(w).Encode(res)
-		if err != nil {
-			log.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
-		}
-	} else {
-		w.Header().Set(HeaderContentType, HeaderAppJson)
-		err := json.NewEncoder(w).Encode(res)
-		if err != nil {
-			log.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
-		}
-	}
-}
-
-func calcBreakingChanges(r *http.Request, base string, revision string) (checker.Changes, int) {
-
-	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = true
-
-	s1, err := load.NewSpecInfo(loader, load.NewSource(base))
-	if err != nil {
-		log.Infof("failed to load base spec from %q with %v", base, err)
-		return nil, http.StatusBadRequest
-	}
-	s2, err := load.NewSpecInfo(loader, load.NewSource(revision))
-	if err != nil {
-		log.Infof("failed to load revision spec from %q with %v", revision, err)
-		return nil, http.StatusBadRequest
-	}
-
-	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
-		CreateConfig(r), s1, s2)
-	if err != nil {
-		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
-		return nil, http.StatusInternalServerError
-	}
-
-	return checker.CheckBackwardCompatibility(checker.NewConfig(checker.GetAllChecks()), diffReport, operationsSources), http.StatusOK
+	getChangelog(w, r, base.Name(), revision.Name(), BREAKING_LEVEL)
 }

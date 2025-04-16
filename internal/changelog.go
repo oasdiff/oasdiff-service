@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -11,8 +11,9 @@ import (
 	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/oasdiff/oasdiff/load"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 )
+
+const CHANGELOG_LEVEL = checker.INFO
 
 func (h *Handler) ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 
@@ -28,89 +29,111 @@ func (h *Handler) ChangelogFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	acceptHeader := GetAcceptHeader(r)
-
-	changes, code := calcChangelog(r, base, revision)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
-	}
-
-	res := map[string]checker.Changes{"changelog": changes}
-	w.WriteHeader(http.StatusCreated)
-	if acceptHeader == HeaderAppYaml {
-		w.Header().Set(HeaderContentType, HeaderAppYaml)
-		err := yaml.NewEncoder(w).Encode(res)
-		if err != nil {
-			log.Errorf("failed to yaml encode 'changelog' report with '%v'", err)
-		}
-		return
-	}
-	w.Header().Set(HeaderContentType, HeaderAppJson)
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		log.Errorf("failed to json encode 'changelog' report with '%v'", err)
-	}
+	getChangelog(w, r, base, revision, CHANGELOG_LEVEL)
 }
 
 func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 
-	dir, base, revision, code := CreateFiles(r)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
+	dir, base, revision, err := CreateFiles(r)
+	if err != nil {
+		log.Errorf("failed to create files with %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer CloseFile(base)
 	defer CloseFile(revision)
 	defer os.RemoveAll(dir)
 
-	acceptHeader := GetAcceptHeader(r)
+	getChangelog(w, r, base.Name(), revision.Name(), CHANGELOG_LEVEL)
+}
 
-	changes, code := calcChangelog(r, base.Name(), revision.Name())
-	if code != http.StatusOK {
-		w.WriteHeader(code)
+func getChangelog(w http.ResponseWriter, r *http.Request, base string, revision string, level checker.Level) {
+	changes, err := calcChangelog(r, base, revision, level)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	res := map[string]formatters.Changes{"changes": formatters.NewChanges(changes, checker.NewDefaultLocalizer())}
+	contentType := getContentType(GetAcceptHeader(r))
+
+	out, err := getChangelogOutput(changes, contentType)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	if acceptHeader == HeaderAppYaml {
-		w.Header().Set(HeaderContentType, HeaderAppYaml)
-		err := yaml.NewEncoder(w).Encode(res)
+	w.Header().Set(HeaderContentType, contentType)
+	_, _ = w.Write(out)
+}
+
+func getContentType(acceptHeader string) string {
+	if acceptHeader == "" {
+		return HeaderAppJson
+	}
+	return acceptHeader
+}
+
+func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, error) {
+	switch contentType {
+	case HeaderAppYaml:
+		out, err := formatters.YAMLFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, nil)
 		if err != nil {
-			log.Errorf("failed to yaml encode 'changelog' report with '%v'", err)
+			return nil, fmt.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
 		}
-	} else {
-		w.Header().Set(HeaderContentType, HeaderAppJson)
-		err := json.NewEncoder(w).Encode(res)
+		return out, nil
+	case HeaderAppJson:
+		out, err := formatters.JSONFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, nil)
 		if err != nil {
-			log.Errorf("failed to json encode 'changelog' report with '%v'", err)
+			return nil, fmt.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
 		}
+		return out, nil
+	case HeaderTextHtml:
+		out, err := formatters.HTMLFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to html encode 'breaking-changes' report with '%v'", err)
+		}
+		return out, nil
+	case HeaderTextPlain:
+		out, err := formatters.TEXTFormatter{
+			Localizer: checker.NewLocalizer("en"),
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to text encode 'breaking-changes' report with '%v'", err)
+		}
+		return out, nil
+	default:
+		return nil, fmt.Errorf("unsupported content type '%v'", contentType)
 	}
 }
 
-func calcChangelog(r *http.Request, base string, revision string) (checker.Changes, int) {
+func calcChangelog(r *http.Request, base string, revision string, level checker.Level) (checker.Changes, error) {
 
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
 	s1, err := load.NewSpecInfo(loader, load.NewSource(base))
 	if err != nil {
-		log.Infof("failed to load base spec from %q with %v", base, err)
-		return nil, http.StatusBadRequest
+		return nil, fmt.Errorf("failed to load base spec from %q with %v", base, err)
 	}
 	s2, err := load.NewSpecInfo(loader, load.NewSource(revision))
 	if err != nil {
-		log.Infof("failed to load revision spec from %q with %v", revision, err)
-		return nil, http.StatusBadRequest
+		return nil, fmt.Errorf("failed to load revision spec from %q with %v", revision, err)
 	}
 
 	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
 		CreateConfig(r), s1, s2)
 	if err != nil {
-		log.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
-		return nil, http.StatusInternalServerError
+		return nil, fmt.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
 	}
 
-	return checker.CheckBackwardCompatibilityUntilLevel(checker.NewConfig(checker.GetAllChecks()), diffReport, operationsSources, checker.INFO), http.StatusOK
+	return checker.CheckBackwardCompatibilityUntilLevel(checker.NewConfig(checker.GetAllChecks()), diffReport, operationsSources, level), nil
 }
