@@ -48,7 +48,14 @@ func (h *Handler) ChangelogFromFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func getChangelog(w http.ResponseWriter, r *http.Request, base string, revision string, level checker.Level) {
-	changes, err := calcChangelog(r, base, revision, level)
+	specInfoPair, err := getSpecInfoPair(base, revision)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	changes, err := calcChangelog(r, specInfoPair, level)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -57,7 +64,7 @@ func getChangelog(w http.ResponseWriter, r *http.Request, base string, revision 
 
 	contentType := getContentType(GetAcceptHeader(r))
 
-	out, err := getChangelogOutput(changes, contentType)
+	out, err := getChangelogOutput(changes, contentType, specInfoPair)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -76,12 +83,12 @@ func getContentType(acceptHeader string) string {
 	return acceptHeader
 }
 
-func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, error) {
+func getChangelogOutput(changes checker.Changes, contentType string, specInfoPair *load.SpecInfoPair) ([]byte, error) {
 	switch contentType {
 	case HeaderAppYaml:
 		out, err := formatters.YAMLFormatter{
 			Localizer: checker.NewLocalizer("en"),
-		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, nil)
+		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, specInfoPair)
 		if err != nil {
 			return nil, fmt.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
 		}
@@ -89,7 +96,7 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 	case HeaderAppJson:
 		out, err := formatters.JSONFormatter{
 			Localizer: checker.NewLocalizer("en"),
-		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, nil)
+		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, specInfoPair)
 		if err != nil {
 			return nil, fmt.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
 		}
@@ -97,7 +104,7 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 	case HeaderTextHtml:
 		out, err := formatters.HTMLFormatter{
 			Localizer: checker.NewLocalizer("en"),
-		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair)
 		if err != nil {
 			return nil, fmt.Errorf("failed to html encode 'breaking-changes' report with '%v'", err)
 		}
@@ -105,7 +112,7 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 	case HeaderTextPlain:
 		out, err := formatters.TEXTFormatter{
 			Localizer: checker.NewLocalizer("en"),
-		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair)
 		if err != nil {
 			return nil, fmt.Errorf("failed to text encode 'breaking-changes' report with '%v'", err)
 		}
@@ -113,7 +120,7 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 	case HeaderTextMarkdown:
 		out, err := formatters.MarkupFormatter{
 			Localizer: checker.NewLocalizer("en"),
-		}.RenderChangelog(changes, formatters.NewRenderOpts(), nil)
+		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair)
 		if err != nil {
 			return nil, fmt.Errorf("failed to markdown encode 'breaking-changes' report with '%v'", err)
 		}
@@ -123,8 +130,7 @@ func getChangelogOutput(changes checker.Changes, contentType string) ([]byte, er
 	}
 }
 
-func calcChangelog(r *http.Request, base string, revision string, level checker.Level) (checker.Changes, error) {
-
+func getSpecInfoPair(base string, revision string) (*load.SpecInfoPair, error) {
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
@@ -137,8 +143,13 @@ func calcChangelog(r *http.Request, base string, revision string, level checker.
 		return nil, fmt.Errorf("failed to load revision spec from %q with %v", revision, err)
 	}
 
+	return load.NewSpecInfoPair(s1, s2), nil
+}
+
+func calcChangelog(r *http.Request, specInfoPair *load.SpecInfoPair, level checker.Level) (checker.Changes, error) {
+
 	diffReport, operationsSources, err := diff.GetWithOperationsSourcesMap(
-		CreateConfig(r), s1, s2)
+		CreateConfig(r), specInfoPair.Base, specInfoPair.Revision)
 	if err != nil {
 		return nil, fmt.Errorf("failed to 'diff.GetWithOperationsSourcesMap' with %v", err)
 	}
