@@ -1,7 +1,7 @@
 # Use the offical golang image to create a binary.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
-FROM golang:1.24 AS builder
+FROM golang:1.25 AS builder
 
 # Create and change to the app directory.
 WORKDIR /app
@@ -16,7 +16,7 @@ COPY . ./
 RUN go build -v -o server
 
 FROM debian:bookworm-slim
-RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN set -x && apt-get update && apt-get dist-upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/server /app/server

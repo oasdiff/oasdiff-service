@@ -85,10 +85,13 @@ func getContentType(acceptHeader string) string {
 }
 
 func getChangelogOutput(changes checker.Changes, contentType string, specInfoPair *load.SpecInfoPair, languageCode string) ([]byte, error) {
+
+	localizer := checker.NewLocalizer(languageCode)
+
 	switch contentType {
 	case HeaderAppYaml:
 		out, err := formatters.YAMLFormatter{
-			Localizer: checker.NewLocalizer(languageCode),
+			Localizer: localizer,
 		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, specInfoPair.GetBaseVersion(), specInfoPair.GetRevisionVersion())
 		if err != nil {
 			return nil, fmt.Errorf("failed to yaml encode 'breaking-changes' report with '%v'", err)
@@ -96,7 +99,7 @@ func getChangelogOutput(changes checker.Changes, contentType string, specInfoPai
 		return out, nil
 	case HeaderAppJson:
 		out, err := formatters.JSONFormatter{
-			Localizer: checker.NewLocalizer(languageCode),
+			Localizer: localizer,
 		}.RenderChangelog(changes, formatters.RenderOpts{WrapInObject: true}, specInfoPair.GetBaseVersion(), specInfoPair.GetRevisionVersion())
 		if err != nil {
 			return nil, fmt.Errorf("failed to json encode 'breaking-changes' report with '%v'", err)
@@ -104,7 +107,7 @@ func getChangelogOutput(changes checker.Changes, contentType string, specInfoPai
 		return out, nil
 	case HeaderTextHtml:
 		out, err := formatters.HTMLFormatter{
-			Localizer: checker.NewLocalizer(languageCode),
+			Localizer: localizer,
 		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair.GetBaseVersion(), specInfoPair.GetRevisionVersion())
 		if err != nil {
 			return nil, fmt.Errorf("failed to html encode 'breaking-changes' report with '%v'", err)
@@ -112,7 +115,7 @@ func getChangelogOutput(changes checker.Changes, contentType string, specInfoPai
 		return out, nil
 	case HeaderTextPlain:
 		out, err := formatters.TEXTFormatter{
-			Localizer: checker.NewLocalizer(languageCode),
+			Localizer: localizer,
 		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair.GetBaseVersion(), specInfoPair.GetRevisionVersion())
 		if err != nil {
 			return nil, fmt.Errorf("failed to text encode 'breaking-changes' report with '%v'", err)
@@ -120,7 +123,7 @@ func getChangelogOutput(changes checker.Changes, contentType string, specInfoPai
 		return out, nil
 	case HeaderTextMarkdown:
 		out, err := formatters.MarkupFormatter{
-			Localizer: checker.NewLocalizer(languageCode),
+			Localizer: localizer,
 		}.RenderChangelog(changes, formatters.NewRenderOpts(), specInfoPair.GetBaseVersion(), specInfoPair.GetRevisionVersion())
 		if err != nil {
 			return nil, fmt.Errorf("failed to markdown encode 'breaking-changes' report with '%v'", err)
