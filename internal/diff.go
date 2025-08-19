@@ -35,6 +35,7 @@ func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contentType := getContentType(GetAcceptHeader(r))
+	languageCode := GetLanguageCode(GetAcceptLanguageHeader(r))
 
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec, contentType)
 	if code != http.StatusOK {
@@ -42,7 +43,7 @@ func (h *Handler) DiffFromUri(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := getDiffOutput(diffReport, contentType)
+	out, err := getDiffOutput(diffReport, contentType, languageCode)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -74,6 +75,7 @@ func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contentType := getContentType(GetAcceptHeader(r))
+	languageCode := GetLanguageCode(GetAcceptLanguageHeader(r))
 
 	diffReport, code := createDiffReport(r, baseSpec, revisionSpec, contentType)
 	if code != http.StatusOK {
@@ -81,7 +83,7 @@ func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := getDiffOutput(diffReport, contentType)
+	out, err := getDiffOutput(diffReport, contentType, languageCode)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -93,11 +95,11 @@ func (h *Handler) DiffFromFile(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
+func getDiffOutput(diffReport *diff.Diff, contentType string, languageCode string) ([]byte, error) {
 	switch contentType {
 	case HeaderAppYaml:
 		out, err := formatters.YAMLFormatter{
-			Localizer: checker.NewLocalizer("en"),
+			Localizer: checker.NewLocalizer(languageCode),
 		}.RenderDiff(diffReport, formatters.NewRenderOpts())
 		if err != nil {
 			return nil, fmt.Errorf("failed to yaml encode diff with '%v'", err)
@@ -105,7 +107,7 @@ func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
 		return out, nil
 	case HeaderAppJson:
 		out, err := formatters.JSONFormatter{
-			Localizer: checker.NewLocalizer("en"),
+			Localizer: checker.NewLocalizer(languageCode),
 		}.RenderDiff(diffReport, formatters.NewRenderOpts())
 		if err != nil {
 			return nil, fmt.Errorf("failed to json encode diff with '%v'", err)
@@ -113,7 +115,7 @@ func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
 		return out, nil
 	case HeaderTextHtml:
 		out, err := formatters.HTMLFormatter{
-			Localizer: checker.NewLocalizer("en"),
+			Localizer: checker.NewLocalizer(languageCode),
 		}.RenderDiff(diffReport, formatters.NewRenderOpts())
 		if err != nil {
 			return nil, fmt.Errorf("failed to html encode diff with '%v'", err)
@@ -121,7 +123,7 @@ func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
 		return out, nil
 	case HeaderTextPlain:
 		out, err := formatters.TEXTFormatter{
-			Localizer: checker.NewLocalizer("en"),
+			Localizer: checker.NewLocalizer(languageCode),
 		}.RenderDiff(diffReport, formatters.NewRenderOpts())
 		if err != nil {
 			return nil, fmt.Errorf("failed to text encode diff with '%v'", err)
@@ -129,7 +131,7 @@ func getDiffOutput(diffReport *diff.Diff, contentType string) ([]byte, error) {
 		return out, nil
 	case HeaderTextMarkdown:
 		out, err := formatters.MarkupFormatter{
-			Localizer: checker.NewLocalizer("en"),
+			Localizer: checker.NewLocalizer(languageCode),
 		}.RenderDiff(diffReport, formatters.NewRenderOpts())
 		if err != nil {
 			return nil, fmt.Errorf("failed to markdown encode diff with '%v'", err)
