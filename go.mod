@@ -9,7 +9,7 @@ require (
 	github.com/oasdiff/go-common v0.3.4
 	github.com/oasdiff/oasdiff v1.11.8
 	github.com/onrik/logrus v0.11.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/image v0.35.0
 )
