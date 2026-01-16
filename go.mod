@@ -3,7 +3,7 @@ module github.com/oasdiff/oasdiff-service
 go 1.25.0
 
 require (
-	github.com/getkin/kin-openapi v0.132.0
+	github.com/getkin/kin-openapi v0.133.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gorilla/mux v1.8.1
 	github.com/oasdiff/go-common v0.3.4
@@ -42,6 +42,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/wI2L/jsondiff v0.7.0 // indirect
+	github.com/woodsbury/decimal128 v1.3.0 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yuin/goldmark v1.7.13 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
